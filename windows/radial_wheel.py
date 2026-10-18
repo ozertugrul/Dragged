@@ -74,6 +74,69 @@ CATEGORIES = [
     }
 ]
 
+THEMES = {
+    "tangerine": {
+        "name": "Liquid Tangerine",
+        "primary": (250, 108, 30),
+        "primary_end": (225, 65, 10),
+        "ring_bg": (245, 230, 210, 215),
+        "ring_stroke": (255, 140, 20, 100),
+        "petal_bg": (255, 245, 230, 240),
+        "petal_fg": (35, 35, 35),
+        "header_bg": (255, 250, 242, 235),
+        "header_fg": (40, 25, 10),
+        "is_dark": False,
+    },
+    "cyber_neon": {
+        "name": "Cyber Neon",
+        "primary": (0, 242, 254),
+        "primary_end": (79, 172, 254),
+        "ring_bg": (14, 20, 36, 225),
+        "ring_stroke": (0, 242, 254, 130),
+        "petal_bg": (28, 38, 60, 235),
+        "petal_fg": (235, 245, 255),
+        "header_bg": (20, 28, 48, 240),
+        "header_fg": (230, 242, 255),
+        "is_dark": True,
+    },
+    "emerald": {
+        "name": "Emerald Forest",
+        "primary": (16, 185, 129),
+        "primary_end": (5, 150, 105),
+        "ring_bg": (225, 242, 232, 220),
+        "ring_stroke": (16, 185, 129, 120),
+        "petal_bg": (240, 250, 244, 240),
+        "petal_fg": (20, 50, 35),
+        "header_bg": (235, 248, 240, 240),
+        "header_fg": (15, 55, 30),
+        "is_dark": False,
+    },
+    "obsidian": {
+        "name": "Midnight Obsidian",
+        "primary": (110, 118, 135),
+        "primary_end": (45, 50, 60),
+        "ring_bg": (20, 20, 24, 230),
+        "ring_stroke": (200, 200, 210, 90),
+        "petal_bg": (38, 38, 45, 240),
+        "petal_fg": (240, 240, 245),
+        "header_bg": (28, 28, 34, 245),
+        "header_fg": (250, 250, 255),
+        "is_dark": True,
+    },
+    "sunset_rose": {
+        "name": "Sunset Rose",
+        "primary": (244, 63, 94),
+        "primary_end": (190, 18, 60),
+        "ring_bg": (250, 228, 235, 220),
+        "ring_stroke": (244, 63, 94, 110),
+        "petal_bg": (255, 242, 246, 240),
+        "petal_fg": (60, 20, 30),
+        "header_bg": (255, 240, 245, 240),
+        "header_fg": (65, 15, 30),
+        "is_dark": False,
+    }
+}
+
 class RadialWheelWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -92,9 +155,15 @@ class RadialWheelWindow(QWidget):
         self.inner_r = 68
         self.outer_r = 162
         self.category_idx = 0
+        self.theme_name = "tangerine"
         self.hovered_idx = None  # 0..7 or 999 for center
         self.current_files = []
         self.thumbnail_pixmap = None
+
+    def set_theme(self, name: str):
+        if name in THEMES:
+            self.theme_name = name
+            self.update()
 
     def show_at_cursor(self, files=None):
         self.current_files = files or []
@@ -121,6 +190,11 @@ class RadialWheelWindow(QWidget):
             self.category_idx = (self.category_idx + 1) % len(CATEGORIES)
             self.hovered_idx = None
             self.update()
+        elif event.key() == Qt.Key.Key_T:
+            # Quick toggle through 5 themes with 'T'
+            keys = list(THEMES.keys())
+            idx = (keys.index(self.theme_name) + 1) % len(keys)
+            self.set_theme(keys[idx])
 
     def wheelEvent(self, event):
         # Rotate category on scroll
@@ -178,6 +252,7 @@ class RadialWheelWindow(QWidget):
 
         for file_path in self.current_files:
             try:
+                src_size = os.path.getsize(file_path) if os.path.exists(file_path) else 0
                 if self.category_idx == 0 and idx != 999:
                     dest = ConversionEngine.convert_image(file_path, item["id"])
                 elif self.category_idx == 0 and idx == 999:
@@ -185,11 +260,17 @@ class RadialWheelWindow(QWidget):
                 else:
                     dest = ConversionEngine.execute_tool(file_path, item["id"])
 
+                dst_size = os.path.getsize(dest) if os.path.exists(dest) else 0
+                savings = ""
+                if src_size > 0 and dst_size > 0 and dst_size < src_size:
+                    pct = int(round((1.0 - (dst_size / src_size)) * 100))
+                    savings = f" · {pct}% smaller"
+
                 # Notify via Windows Toast
                 if toaster:
                     toaster.show_toast(
-                        "Dragged",
-                        f"Saved: {Path(dest).name}",
+                        f"Converted to {item['name']}",
+                        f"{Path(dest).name}{savings}",
                         duration=3,
                         threaded=True
                     )
@@ -213,15 +294,16 @@ class RadialWheelWindow(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
+        theme = THEMES.get(self.theme_name, THEMES["tangerine"])
         cx, cy = self.size_val / 2, self.size_val / 2
 
         # 1. Outer Frosted Glass Ring
-        painter.setPen(QPen(QColor(255, 140, 20, 100), 2))
-        painter.setBrush(QBrush(QColor(245, 230, 210, 215)))
+        painter.setPen(QPen(QColor(*theme["ring_stroke"]), 2))
+        painter.setBrush(QBrush(QColor(*theme["ring_bg"])))
         painter.drawEllipse(int(cx - self.outer_r - 9), int(cy - self.outer_r - 9), int((self.outer_r + 9) * 2), int((self.outer_r + 9) * 2))
 
         # 2. Inner Ring Boundary
-        painter.setPen(QPen(QColor(255, 140, 20, 90), 1))
+        painter.setPen(QPen(QColor(*theme["ring_stroke"]), 1))
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawEllipse(int(cx - self.inner_r), int(cy - self.inner_r), int(self.inner_r * 2), int(self.inner_r * 2))
 
@@ -259,13 +341,13 @@ class RadialWheelWindow(QWidget):
 
             if is_hovered:
                 grad = QLinearGradient(0, 0, self.size_val, self.size_val)
-                grad.setColorAt(0, QColor(250, 108, 30))
-                grad.setColorAt(1, QColor(225, 65, 10))
+                grad.setColorAt(0, QColor(*theme["primary"]))
+                grad.setColorAt(1, QColor(*theme["primary_end"]))
                 painter.setBrush(QBrush(grad))
-                painter.setPen(QPen(QColor(255, 255, 255, 220), 2))
+                painter.setPen(QPen(QColor(255, 255, 255, 230), 2))
             else:
-                painter.setBrush(QBrush(QColor(255, 245, 230, 240)))
-                painter.setPen(QPen(QColor(255, 255, 255, 180), 1))
+                painter.setBrush(QBrush(QColor(*theme["petal_bg"])))
+                painter.setPen(QPen(QColor(255, 255, 255, 120 if theme["is_dark"] else 180), 1))
 
             painter.drawPath(path)
 
@@ -275,7 +357,7 @@ class RadialWheelWindow(QWidget):
             tx = cx + dist * math.cos(mid_rad)
             ty = cy + dist * math.sin(mid_rad)
 
-            painter.setPen(QColor(255, 255, 255) if is_hovered else QColor(35, 35, 35))
+            painter.setPen(QColor(255, 255, 255) if is_hovered else QColor(*theme["petal_fg"]))
             font = QFont("Segoe UI", 9 if is_hovered else 8, QFont.Weight.Bold)
             painter.setFont(font)
             text_rect = QRectF(tx - 40, ty - 12, 80, 24)
@@ -303,34 +385,34 @@ class RadialWheelWindow(QWidget):
 
         if is_active_hub:
             grad = QLinearGradient(0, 0, self.size_val, self.size_val)
-            grad.setColorAt(0, QColor(250, 108, 30))
-            grad.setColorAt(1, QColor(225, 65, 10))
+            grad.setColorAt(0, QColor(*theme["primary"]))
+            grad.setColorAt(1, QColor(*theme["primary_end"]))
             painter.setBrush(QBrush(grad))
-            painter.setPen(QPen(QColor(255, 255, 255, 220), 2))
+            painter.setPen(QPen(QColor(255, 255, 255, 230), 2))
         else:
-            painter.setBrush(QBrush(QColor(255, 245, 230, 245)))
-            painter.setPen(QPen(QColor(255, 140, 20, 180), 1))
+            painter.setBrush(QBrush(QColor(*theme["petal_bg"])))
+            painter.setPen(QPen(QColor(*theme["ring_stroke"]), 1))
 
         painter.drawRoundedRect(pill_rect, 24, 24)
         
         # Title text
-        painter.setPen(QColor(255, 255, 255) if is_active_hub else QColor(35, 35, 35))
+        painter.setPen(QColor(255, 255, 255) if is_active_hub else QColor(*theme["petal_fg"]))
         painter.setFont(QFont("Segoe UI", 8, QFont.Weight.Black))
         painter.drawText(QRectF(cx - 50, cy - 20, 100, 18), Qt.AlignmentFlag.AlignCenter, display_title)
 
         # Hint subtext
-        painter.setPen(QColor(255, 255, 255, 210) if is_active_hub else QColor(110, 100, 90))
+        painter.setPen(QColor(255, 255, 255, 210) if is_active_hub else QColor(140, 140, 140 if theme["is_dark"] else 100, 100, 100))
         painter.setFont(QFont("Segoe UI", 6, QFont.Weight.DemiBold))
         painter.drawText(QRectF(cx - 50, cy + 1, 100, 16), Qt.AlignmentFlag.AlignCenter, display_hint)
 
         # 5. Top Category Header & Page Dots
         header_y = cy - self.outer_r - 38
         header_rect = QRectF(cx - 85, header_y, 170, 24)
-        painter.setBrush(QBrush(QColor(255, 250, 242, 235)))
-        painter.setPen(QPen(QColor(255, 150, 40, 120), 1))
+        painter.setBrush(QBrush(QColor(*theme["header_bg"])))
+        painter.setPen(QPen(QColor(*theme["ring_stroke"]), 1))
         painter.drawRoundedRect(header_rect, 12, 12)
 
-        painter.setPen(QColor(40, 25, 10))
+        painter.setPen(QColor(*theme["header_fg"]))
         painter.setFont(QFont("Segoe UI", 7, QFont.Weight.Black))
         painter.drawText(QRectF(cx - 80, header_y, 110, 24), Qt.AlignmentFlag.AlignCenter, cat["title"])
 
@@ -339,7 +421,7 @@ class RadialWheelWindow(QWidget):
             dot_x = cx + 38 + (d * 7)
             dot_y = header_y + 12
             is_active = (d == self.category_idx)
-            painter.setBrush(QBrush(QColor(250, 108, 30) if is_active else QColor(0, 0, 0, 50)))
+            painter.setBrush(QBrush(QColor(*theme["primary"]) if is_active else QColor(255, 255, 255, 60 if theme["is_dark"] else 40)))
             painter.setPen(Qt.PenStyle.NoPen)
             r = 3 if is_active else 2
             painter.drawEllipse(QPoint(int(dot_x), int(dot_y)), r, r)

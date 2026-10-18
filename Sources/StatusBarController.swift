@@ -32,7 +32,7 @@ public class StatusBarController: NSObject {
     public func buildMenu() {
         let menu = NSMenu()
 
-        let titleItem = NSMenuItem(title: "Dragged (v1.0.0)", action: nil, keyEquivalent: "")
+        let titleItem = NSMenuItem(title: "Dragged (v1.2.0)", action: nil, keyEquivalent: "")
         titleItem.isEnabled = false
         menu.addItem(titleItem)
 
@@ -45,6 +45,23 @@ public class StatusBarController: NSObject {
         let radialItem = NSMenuItem(title: "Trigger Radial Wheel at Cursor", action: #selector(showRadialWheel), keyEquivalent: "r")
         radialItem.target = self
         menu.addItem(radialItem)
+
+        menu.addItem(NSMenuItem.separator())
+
+        // 🎨 Theme Submenu (5 Liquid Glass Themes)
+        let themeMenu = NSMenu()
+        for theme in AppTheme.allCases {
+            let item = NSMenuItem(title: theme.displayName, action: #selector(selectTheme(_:)), keyEquivalent: "")
+            item.representedObject = theme.rawValue
+            item.target = self
+            if theme == ThemeManager.shared.currentTheme {
+                item.state = .on
+            }
+            themeMenu.addItem(item)
+        }
+        let themeItem = NSMenuItem(title: "Theme: \(ThemeManager.shared.currentTheme.displayName)", action: nil, keyEquivalent: "")
+        themeItem.submenu = themeMenu
+        menu.addItem(themeItem)
 
         menu.addItem(NSMenuItem.separator())
 
@@ -89,6 +106,14 @@ public class StatusBarController: NSObject {
         menu.addItem(quitItem)
 
         statusItem?.menu = menu
+    }
+
+    @objc private func selectTheme(_ sender: NSMenuItem) {
+        if let raw = sender.representedObject as? String,
+           let theme = AppTheme(rawValue: raw) {
+            ThemeManager.shared.setTheme(theme)
+            buildMenu()
+        }
     }
 
     @objc private func statusBarClicked() {

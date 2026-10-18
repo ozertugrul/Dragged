@@ -8,35 +8,64 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
 <p align="center">
-  <img src="assets/banner.png" alt="Dragged App Feature Showcase" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);" />
+  <img src="assets/banner.png" alt="Dragged App Real Showcase" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);" />
 </p>
+
+---
+
+## 🎨 5 Liquid-Glass Themes
+
+Switch themes on the fly from the **Menu Bar / System Tray icon** or **Preferences (`Cmd + ,`)**:
+
+| Theme | Finish & Palette | Mood & Contrast |
+| :--- | :--- | :--- |
+| 🍊 **Liquid Tangerine** *(Default)* | Warm ivory frosted glass, amber & citrus bloom (`#FA6C1E`) | Classic, high clarity, inviting |
+| ⚡ **Cyber Neon** | Translucent midnight glass, electric cyan & neon blue glow (`#00F2FE`) | Futuristic dark mode, high contrast |
+| 🌲 **Emerald Forest** | Frosted sage glass, rich mint & deep jade glow (`#10B981`) | Organic, calm, focus-friendly |
+| 🌑 **Midnight Obsidian** | Deep black obsidian glass, pure silver & monochrome rim | Minimalist, ultra-clean, stealth |
+| 🌸 **Sunset Rose** | Frosted rose quartz glass, vivid magenta & coral sunset glow (`#F43F5E`) | Vibrant, warm, expressive |
 
 ---
 
 ## ✨ Features
 
 - **🎯 Blooming Radial Wheel:** Drag any file in Finder or File Explorer, hold **Shift**, and a beautiful frosted-glass radial wheel blooms directly at your cursor.
-- **🔄 Scroll to Switch Menus:** Use your mouse scroll wheel or trackpad two-finger swipe while dragging to cycle smoothly between 4 dedicated tool wheels:
+- **🔄 Scroll or Tab to Switch Menus:** Use your mouse scroll wheel, trackpad two-finger swipe, or tap **Shift / Tab** while dragging to cycle smoothly between 4 dedicated tool wheels:
   1. **Image Formats:** `PNG`, `WEBP`, `HEIC`, `GIF`, `AVIF`, `BMP`, `PDF`, `DOCX`, Center: `TIFF`
   2. **Tools & Edit:** `COMPRESS`, `METADATA` (EXIF Strip), `EDIT`, `ANNOTATE`, `REMOVE BG`, `PREVIEW`, `CROP`, `REDACT`, Center: `ADD BG`
   3. **Video & Audio:** `MP4`, `GIF`, `MP3` (Audio extractor), `WAV`, `MOV`, `WEBM`, `M4A`, `COMPRESS`, Center: `MUTE`
   4. **PDF & Documents:** `TO PDF`, `COMPRESS`, `SPLIT`, `MERGE`, `OCR TEXT`, `TO IMAGES`, `TO WORD`, `PRINT`, Center: `PREVIEW`
-- **🧠 Smart Category Auto-Detection:** Automatically opens the right wheel depending on the dragged file type (Videos open Media, PDFs open Documents, Images open Formats).
-- **🖼️ Real-Time Document Thumbnail Hover:** When hovering over a target petal, it lights up in vibrant orange/magenta and displays a live mini preview of your dragged document.
-- **🔔 Native System Notifications:** Instant desktop notifications showing the saved destination, file dimensions, and size savings percentage (e.g. `Saved 78%`). Clicking reveals the file in Finder/Explorer.
+- **💡 Dynamic Slice Hints:** Hovering over any slice shows a center description (e.g. `PNG → Lossless · transparency`, `COMPRESS → Shrink file size`, `METADATA → Strip GPS & EXIF`).
+- **🔔 Interactive Notifications with Undo:**
+  - Shows file size reduction statistics: `photo.webp · 2.4 MB → 610 KB (75% smaller)`
+  - **Open**: Opens the converted file in the default viewer.
+  - **Show in Finder / Explorer**: Highlights the file in its folder.
+  - **Undo**: Instantly moves the newly created file to Trash / Recycle Bin if you change your mind!
+- **🖼️ Real-Time Document Thumbnail Hover:** When dragging images or PDFs, a live mini preview of your file blooms inside the hover petal.
 - **🔒 100% Local & Offline:** Never uploads your files to any external server. Uses native high-performance engines (`sips`, `cwebp`, `ffmpeg`, `PDFKit`, `Pillow`).
 - **⚡ Universal Binary:** Native support for both **Apple Silicon (M1/M2/M3/M4)** and **Intel** Macs, plus **Windows x64**.
 
 ---
 
-## 🚀 Downloads (Latest Release v1.0.0)
+## 🚀 Downloads (Latest Release v1.2.0)
 
 | Platform | Type | File | Description |
 | :--- | :--- | :--- | :--- |
-| **macOS** | **DMG Installer** | [`Dragged-macOS-Universal.dmg`](https://github.com/ozertugrul/Dragged/releases/download/v1.0.0/Dragged-macOS-Universal.dmg) | Universal binary for Apple Silicon & Intel |
-| **macOS** | **ZIP Archive** | [`Dragged-macOS-Universal.zip`](https://github.com/ozertugrul/Dragged/releases/download/v1.0.0/Dragged-macOS-Universal.zip) | Portable app bundle |
-| **Windows** | **Setup Installer** | [`Dragged-Setup-Windows-x64.exe`](https://github.com/ozertugrul/Dragged/releases/download/v1.0.0/Dragged-Setup-Windows-x64.exe) | Complete setup wizard with shortcuts |
-| **Windows** | **Standalone Exe** | [`Dragged.exe`](https://github.com/ozertugrul/Dragged/releases/download/v1.0.0/Dragged.exe) | Single portable executable |
+| **macOS** | **DMG Installer** | [`Dragged-macOS-Universal.dmg`](https://github.com/ozertugrul/Dragged/releases/download/v1.2.0/Dragged-macOS-Universal.dmg) | Universal binary for Apple Silicon & Intel |
+| **macOS** | **ZIP Archive** | [`Dragged-macOS-Universal.zip`](https://github.com/ozertugrul/Dragged/releases/download/v1.2.0/Dragged-macOS-Universal.zip) | Portable app bundle |
+| **Windows** | **Setup Installer** | [`Dragged-Setup-Windows-x64.exe`](https://github.com/ozertugrul/Dragged/releases/download/v1.2.0/Dragged-Setup-Windows-x64.exe) | Complete setup wizard with shortcuts |
+| **Windows** | **Standalone Exe** | [`Dragged.exe`](https://github.com/ozertugrul/Dragged/releases/download/v1.2.0/Dragged.exe) | Single portable executable |
+
+---
+
+## 📋 Changelog (v1.2.0)
+
+- **New Theme Engine:** Added 5 distinct liquid-glass finishes (Liquid Tangerine, Cyber Neon, Emerald Forest, Midnight Obsidian, Sunset Rose).
+- **Theme Switcher:** Switch themes anytime directly from the Menu Bar / Tray menu or Preferences (`Cmd + ,`).
+- **Interactive Notifications:** Added native `Undo` (moves generated file to Trash), `Open`, and `Show in Finder` actions.
+- **Dynamic Center Hints:** Hovering over petals dynamically displays slice format capabilities and usage tips in the center hub.
+- **No More Clipping:** Enlarged radial canvas to 440px and placed category headers with comfortable breathing room.
+- **Real App Showcase Banner:** Replaced placeholder artwork with pixel-perfect native rendering of Dragged's actual UI.
 
 ---
 

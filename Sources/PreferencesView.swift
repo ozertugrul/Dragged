@@ -49,13 +49,29 @@ public struct PreferencesView: View {
             }
             .padding(.bottom, 10)
 
+            Section(header: Text("Visual Theme").font(.headline)) {
+                Picker("Theme", selection: Binding(
+                    get: { ThemeManager.shared.currentTheme },
+                    set: { ThemeManager.shared.setTheme($0) }
+                )) {
+                    ForEach(AppTheme.allCases) { theme in
+                        Text(theme.displayName).tag(theme)
+                    }
+                }
+                .pickerStyle(.segmented)
+                Text("Choose between 5 liquid-glass finishes with customized color blooms and contrast.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.bottom, 10)
+
             Section(header: Text("Behavior & Feedback").font(.headline)) {
                 Toggle("Play sound on completion (Glass)", isOn: $settings.playSound)
                 Toggle("Automatically reveal converted file in Finder", isOn: $settings.revealInFinder)
             }
         }
         .padding(24)
-        .frame(width: 460, height: 320)
+        .frame(width: 520, height: 400)
     }
 
     private func chooseCustomFolder() {

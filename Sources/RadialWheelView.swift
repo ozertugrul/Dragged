@@ -304,34 +304,38 @@ public class RadialWheelState: ObservableObject {
 // MARK: - Radial Wheel View with Category Header and Scroll Indicators
 public struct RadialWheelView: View {
     @ObservedObject public var state: RadialWheelState
+    @ObservedObject public var themeManager: ThemeManager
     @State private var appearAnimation: Bool = false
 
-    public init(state: RadialWheelState = .shared) {
+    public init(state: RadialWheelState = .shared, themeManager: ThemeManager = .shared) {
         self.state = state
+        self.themeManager = themeManager
     }
 
     public var body: some View {
+        let theme = themeManager.currentTheme
+
         ZStack {
             // 1. Ambient Frosted Glass Outer Ring
             Circle()
-                .fill(Color(red: 0.96, green: 0.90, blue: 0.80).opacity(0.85))
+                .fill(theme.ringFill)
                 .frame(width: state.outerRadius * 2 + 18, height: state.outerRadius * 2 + 18)
                 .overlay(
                     Circle()
                         .stroke(
                             LinearGradient(
-                                colors: [Color.orange.opacity(0.45), Color.white.opacity(0.4)],
+                                colors: theme.ringStrokeGradient,
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             ),
                             lineWidth: 2
                         )
                 )
-                .shadow(color: Color.black.opacity(0.32), radius: 26, x: 0, y: 12)
+                .shadow(color: Color.black.opacity(theme.isDark ? 0.5 : 0.30), radius: 26, x: 0, y: 12)
 
             // 2. Inner Ring Boundary
             Circle()
-                .stroke(Color.orange.opacity(0.35), lineWidth: 1.5)
+                .stroke(theme.innerRingBorder, lineWidth: 1.5)
                 .frame(width: state.innerRadius * 2, height: state.innerRadius * 2)
 
             // 3. 8 Segmented Petals for Current Category
@@ -352,12 +356,12 @@ public struct RadialWheelView: View {
                         isHovered
                         ? AnyShapeStyle(
                             LinearGradient(
-                                colors: [Color(red: 0.98, green: 0.42, blue: 0.12), Color(red: 0.88, green: 0.26, blue: 0.04)],
+                                colors: theme.activeGradient,
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
-                        : AnyShapeStyle(Color(red: 1.0, green: 0.96, blue: 0.89).opacity(0.94))
+                        : AnyShapeStyle(theme.petalDefaultFill)
                     )
                     .overlay(
                         RoundedPetalShape(
@@ -367,9 +371,9 @@ public struct RadialWheelView: View {
                             outerRadius: isHovered ? state.outerRadius + 6 : state.outerRadius,
                             gapAngle: 3.2
                         )
-                        .stroke(isHovered ? Color.white.opacity(0.8) : Color.white.opacity(0.6), lineWidth: isHovered ? 1.6 : 1.2)
+                        .stroke(isHovered ? Color.white.opacity(0.85) : (theme.isDark ? Color.white.opacity(0.2) : Color.white.opacity(0.6)), lineWidth: isHovered ? 1.6 : 1.2)
                     )
-                    .shadow(color: isHovered ? Color(red: 0.98, green: 0.42, blue: 0.12).opacity(0.65) : Color.black.opacity(0.08), radius: isHovered ? 14 : 3)
+                    .shadow(color: isHovered ? theme.hoverGlowColor : Color.black.opacity(0.08), radius: isHovered ? 14 : 3)
 
                     // Content inside Petal
                     let midAngle = Angle(degrees: Double(index) * 45.0 - 90.0)
@@ -396,17 +400,17 @@ public struct RadialWheelView: View {
                             VStack(spacing: 3) {
                                 Image(systemName: icon)
                                     .font(.system(size: isHovered ? 18 : 15, weight: .bold))
-                                    .foregroundColor(isHovered ? .white : Color(red: 0.15, green: 0.15, blue: 0.15))
+                                    .foregroundColor(isHovered ? .white : theme.petalTextColor)
 
                                 Text(item.name)
                                     .font(.system(size: isHovered ? 11 : 9.5, weight: .black, design: .rounded))
-                                    .foregroundColor(isHovered ? .white : Color(red: 0.15, green: 0.15, blue: 0.15))
+                                    .foregroundColor(isHovered ? .white : theme.petalTextColor)
                                     .tracking(0.4)
                             }
                         } else {
                             Text(item.name)
                                 .font(.system(size: isHovered ? 15.5 : 13.5, weight: .heavy, design: .rounded))
-                                .foregroundColor(isHovered ? .white : Color(red: 0.12, green: 0.12, blue: 0.12))
+                                .foregroundColor(isHovered ? .white : theme.petalTextColor)
                                 .tracking(0.6)
                         }
                     }
@@ -448,19 +452,19 @@ public struct RadialWheelView: View {
                             isCenterActive
                             ? AnyShapeStyle(
                                 LinearGradient(
-                                    colors: [Color(red: 0.98, green: 0.42, blue: 0.12), Color(red: 0.88, green: 0.26, blue: 0.04)],
+                                    colors: theme.activeGradient,
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
                             )
-                            : AnyShapeStyle(Color(red: 1.0, green: 0.96, blue: 0.90).opacity(0.96))
+                            : AnyShapeStyle(theme.petalDefaultFill)
                         )
                         .frame(width: 104, height: 48)
                         .overlay(
                             Capsule()
-                                .stroke(isCenterActive ? Color.white.opacity(0.85) : Color.white.opacity(0.65), lineWidth: 1.5)
+                                .stroke(isCenterActive ? Color.white.opacity(0.85) : (theme.isDark ? Color.white.opacity(0.25) : Color.white.opacity(0.65)), lineWidth: 1.5)
                         )
-                        .shadow(color: isCenterActive ? Color.orange.opacity(0.65) : Color.black.opacity(0.12), radius: 10)
+                        .shadow(color: isCenterActive ? theme.hoverGlowColor : Color.black.opacity(0.12), radius: 10)
 
                     VStack(spacing: 1.5) {
                         HStack(spacing: 3) {
@@ -476,7 +480,7 @@ public struct RadialWheelView: View {
                             .font(.system(size: 7.5, weight: .bold, design: .rounded))
                             .opacity(0.85)
                     }
-                    .foregroundColor(isCenterActive ? .white : Color(red: 0.15, green: 0.15, blue: 0.15))
+                    .foregroundColor(isCenterActive ? .white : theme.petalTextColor)
                 }
             }
             .buttonStyle(.plain)
@@ -494,18 +498,18 @@ public struct RadialWheelView: View {
             HStack(spacing: 8) {
                 Image(systemName: "arrow.up.and.down")
                     .font(.system(size: 9, weight: .bold))
-                    .foregroundColor(Color(red: 0.98, green: 0.42, blue: 0.12))
+                    .foregroundColor(theme.dotActiveColor)
 
                 Text(state.activeCategory.title)
                     .font(.system(size: 10.5, weight: .black, design: .rounded))
-                    .foregroundColor(Color(red: 0.22, green: 0.15, blue: 0.08))
+                    .foregroundColor(theme.headerTextColor)
                     .tracking(0.8)
 
                 // 4 glowing category dots
                 HStack(spacing: 4) {
                     ForEach(WheelCategory.allCases, id: \.self) { cat in
                         Circle()
-                            .fill(cat == state.activeCategory ? Color(red: 0.98, green: 0.42, blue: 0.12) : Color.black.opacity(0.18))
+                            .fill(cat == state.activeCategory ? theme.dotActiveColor : (theme.isDark ? Color.white.opacity(0.2) : Color.black.opacity(0.18)))
                             .frame(width: cat == state.activeCategory ? 6 : 4, height: cat == state.activeCategory ? 6 : 4)
                             .animation(.spring(response: 0.25, dampingFraction: 0.7), value: state.activeCategory)
                     }
@@ -515,12 +519,12 @@ public struct RadialWheelView: View {
             .padding(.vertical, 6)
             .background(
                 Capsule()
-                    .fill(Color(red: 1.0, green: 0.98, blue: 0.94).opacity(0.95))
+                    .fill(theme.headerBackground)
                     .overlay(
                         Capsule()
-                            .stroke(Color.white.opacity(0.85), lineWidth: 1.5)
+                            .stroke(theme.headerBorder, lineWidth: 1.5)
                     )
-                    .shadow(color: Color.black.opacity(0.16), radius: 6, y: 2)
+                    .shadow(color: Color.black.opacity(theme.isDark ? 0.35 : 0.16), radius: 6, y: 2)
             )
             .offset(y: -(state.outerRadius + 28))
         }

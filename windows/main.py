@@ -42,7 +42,7 @@ def main():
     tray_icon.setToolTip("Dragged: Radial Gesture File Converter")
 
     menu = QMenu()
-    title_action = QAction("Dragged (v1.0.0)", menu)
+    title_action = QAction("Dragged (v1.2.0)", menu)
     title_action.setEnabled(False)
     menu.addAction(title_action)
     menu.addSeparator()
@@ -51,7 +51,28 @@ def main():
     trigger_action.triggered.connect(lambda: wheel_window.show_at_cursor())
     menu.addAction(trigger_action)
 
+    # 🎨 Theme Submenu for Windows
+    from radial_wheel import THEMES
+    theme_menu = QMenu("Theme", menu)
+    theme_actions = {}
+
+    def update_theme_checks():
+        for k, a in theme_actions.items():
+            a.setChecked(wheel_window.theme_name == k)
+
+    for key, th in THEMES.items():
+        act = QAction(th["name"], theme_menu)
+        act.setCheckable(True)
+        act.setChecked(wheel_window.theme_name == key)
+        def make_handler(k):
+            return lambda: (wheel_window.set_theme(k), update_theme_checks())
+        act.triggered.connect(make_handler(key))
+        theme_menu.addAction(act)
+        theme_actions[key] = act
+
+    menu.addMenu(theme_menu)
     menu.addSeparator()
+
     quit_action = QAction("Quit Dragged", menu)
     quit_action.triggered.connect(app.quit)
     menu.addAction(quit_action)
