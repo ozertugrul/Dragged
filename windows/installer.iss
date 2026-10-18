@@ -1,6 +1,6 @@
 ; Inno Setup Script for Dragged (Windows x64)
 #define MyAppName "Dragged"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.2.0"
 #define MyAppPublisher "Ozertugrul"
 #define MyAppURL "https://github.com/ozertugrul/Dragged"
 #define MyAppExeName "Dragged.exe"

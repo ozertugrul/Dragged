@@ -1,11 +1,10 @@
 import sys
 import traceback
 from PyQt6.QtWidgets import (
-    QApplication, QSystemTrayIcon, QMenu, QMainWindow, QLabel,
-    QVBoxLayout, QWidget, QPushButton, QMessageBox
+    QApplication, QSystemTrayIcon, QMenu, QMessageBox
 )
 from PyQt6.QtGui import QIcon, QPixmap, QColor, QPainter, QAction
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
 from radial_wheel import RadialWheelWindow, THEMES
 from hook import GlobalDragHook
 
@@ -41,8 +40,24 @@ def main():
     wheel_window = RadialWheelWindow()
     hook = GlobalDragHook()
 
+    tray_icon = QSystemTrayIcon(create_tray_icon(), app)
+    tray_icon.setToolTip("Dragged: Radial Gesture File Converter")
+
+    def handle_notification(title, message, is_error):
+        try:
+            icon = QSystemTrayIcon.MessageIcon.Warning if is_error else QSystemTrayIcon.MessageIcon.Information
+            tray_icon.showMessage(title, message, icon, 3500)
+        except Exception as e:
+            print(f"Error showing notification: {e}")
+
+    wheel_window.notify.connect(handle_notification)
+
+    dismiss_timer = QTimer()
+    dismiss_timer.setSingleShot(True)
+
     def on_summon():
         try:
+            dismiss_timer.stop()
             if not wheel_window.isVisible():
                 wheel_window.show_at_cursor()
         except Exception as e:
@@ -50,17 +65,31 @@ def main():
 
     def on_dismiss():
         try:
+            # Delay dismissal by 200ms to allow dropEvent / click processing to register
             if wheel_window.isVisible():
-                wheel_window.hide()
+                dismiss_timer.start(200)
         except Exception as e:
             print(f"Error on dismiss: {e}")
+
+    def do_delayed_dismiss():
+        try:
+            if wheel_window.isVisible():
+                wheel_window.hide()
+            hook.wheel_active = False
+        except Exception as e:
+            print(f"Error in do_delayed_dismiss: {e}")
+
+    dismiss_timer.timeout.connect(do_delayed_dismiss)
+
+    def on_action_done():
+        dismiss_timer.stop()
+        hook.wheel_active = False
+
+    wheel_window.action_completed.connect(on_action_done)
 
     hook.summon_wheel.connect(on_summon)
     hook.dismiss_wheel.connect(on_dismiss)
     hook.start()
-
-    tray_icon = QSystemTrayIcon(create_tray_icon(), app)
-    tray_icon.setToolTip("Dragged: Radial Gesture File Converter")
 
     menu = QMenu()
     title_action = QAction("Dragged (v1.2.0)", menu)
@@ -99,6 +128,14 @@ def main():
 
     tray_icon.setContextMenu(menu)
     tray_icon.show()
+
+    # Friendly launch message
+    tray_icon.showMessage(
+        "Dragged is Running",
+        "Hold Shift and drag any file to open the Radial Wheel!",
+        QSystemTrayIcon.MessageIcon.Information,
+        3000
+    )
 
     print("🍊 Dragged for Windows started. Hold Shift and drag any file to open the Radial Wheel.")
     sys.exit(app.exec())

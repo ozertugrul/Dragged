@@ -1,19 +1,15 @@
 import math
 import os
+import sys
+import subprocess
 from pathlib import Path
 from PyQt6.QtCore import Qt, QPoint, QRectF, QTimer, pyqtSignal
 from PyQt6.QtGui import (
     QPainter, QColor, QBrush, QPen, QPainterPath, QLinearGradient,
     QFont, QIcon, QPixmap, QCursor
 )
-from PyQt6.QtWidgets import QWidget, QApplication
+from PyQt6.QtWidgets import QWidget, QApplication, QFileDialog
 from converter import ConversionEngine
-
-try:
-    from win10toast import ToastNotifier
-    toaster = ToastNotifier()
-except Exception:
-    toaster = None
 
 CATEGORIES = [
     {
@@ -137,7 +133,70 @@ THEMES = {
     }
 }
 
+def get_explorer_selected_files():
+    selected = []
+    try:
+        import pythoncom
+        pythoncom.CoInitialize()
+        import win32com.client
+        import win32gui
+
+        fg = win32gui.GetForegroundWindow()
+        shell = win32com.client.Dispatch("Shell.Application")
+        windows = shell.Windows()
+
+        # Check foreground explorer window first
+        for w in windows:
+            try:
+                if int(w.HWND) == int(fg):
+                    doc = w.Document
+                    items = doc.SelectedItems()
+                    for i in range(items.Count):
+                        p = items.Item(i).Path
+                        if os.path.exists(p):
+                            selected.append(p)
+                    if selected:
+                        return selected
+            except Exception:
+                pass
+
+        # Fallback: check any open explorer window with a selection
+        for w in windows:
+            try:
+                doc = w.Document
+                items = doc.SelectedItems()
+                if items and items.Count > 0:
+                    for i in range(items.Count):
+                        p = items.Item(i).Path
+                        if os.path.exists(p):
+                            selected.append(p)
+                    if selected:
+                        return selected
+            except Exception:
+                pass
+    except Exception:
+        pass
+    return selected
+
+def get_clipboard_files():
+    selected = []
+    try:
+        cb = QApplication.clipboard()
+        mime = cb.mimeData()
+        if mime and mime.hasUrls():
+            for u in mime.urls():
+                if u.isLocalFile():
+                    p = u.toLocalFile()
+                    if os.path.exists(p):
+                        selected.append(p)
+    except Exception:
+        pass
+    return selected
+
 class RadialWheelWindow(QWidget):
+    action_completed = pyqtSignal()
+    notify = pyqtSignal(str, str, bool)
+
     def __init__(self):
         super().__init__()
         self.setWindowFlags(
@@ -158,7 +217,6 @@ class RadialWheelWindow(QWidget):
         self.theme_name = "tangerine"
         self.hovered_idx = None  # 0..7 or 999 for center
         self.current_files = []
-        self.thumbnail_pixmap = None
 
     def set_theme(self, name: str):
         if name in THEMES:
@@ -167,27 +225,35 @@ class RadialWheelWindow(QWidget):
 
     def show_at_cursor(self, files=None):
         try:
-            self.current_files = files or []
+            detected = files or []
+            if not detected:
+                detected = get_explorer_selected_files()
+            if not detected:
+                detected = get_clipboard_files()
+
+            self.current_files = detected or []
+
             if self.current_files:
-                # Auto select category based on file
                 ext = Path(self.current_files[0]).suffix.lower().lstrip(".")
-                if ext in ["mp4", "mov", "avi", "mkv", "mp3", "wav"]:
+                if ext in ["mp4", "mov", "avi", "mkv", "mp3", "wav", "webm", "m4a"]:
                     self.category_idx = 2
-                elif ext in ["pdf", "docx", "txt"]:
+                elif ext in ["pdf", "docx", "doc", "txt", "md"]:
                     self.category_idx = 3
                 else:
                     self.category_idx = 0
-            
+
             pos = QCursor.pos()
             self.move(int(pos.x() - self.size_val / 2), int(pos.y() - self.size_val / 2))
             self.show()
             self.raise_()
+            self.activateWindow()
         except Exception as e:
             print(f"show_at_cursor error: {e}")
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Escape:
             self.hide()
+            self.action_completed.emit()
         elif event.key() in (Qt.Key.Key_Tab, Qt.Key.Key_Shift):
             self.category_idx = (self.category_idx + 1) % len(CATEGORIES)
             self.hovered_idx = None
@@ -209,7 +275,8 @@ class RadialWheelWindow(QWidget):
         self.update()
 
     def mouseMoveEvent(self, event):
-        self.update_hover(event.position().x(), event.position().y())
+        pos = event.position() if hasattr(event, "position") else event.pos()
+        self.update_hover(pos.x(), pos.y())
 
     def update_hover(self, px, py):
         cx, cy = self.size_val / 2, self.size_val / 2
@@ -243,16 +310,72 @@ class RadialWheelWindow(QWidget):
         if event.button() == Qt.MouseButton.LeftButton:
             self.trigger_action()
 
+    def dragEnterEvent(self, event):
+        try:
+            event.acceptProposedAction()
+            if event.mimeData().hasUrls():
+                urls = [u.toLocalFile() for u in event.mimeData().urls() if u.isLocalFile()]
+                if urls:
+                    self.current_files = urls
+                    ext = Path(self.current_files[0]).suffix.lower().lstrip(".")
+                    if ext in ["mp4", "mov", "avi", "mkv", "mp3", "wav", "webm", "m4a"]:
+                        self.category_idx = 2
+                    elif ext in ["pdf", "docx", "doc", "txt"]:
+                        self.category_idx = 3
+                    self.update()
+        except Exception as e:
+            print(f"dragEnterEvent error: {e}")
+
+    def dragMoveEvent(self, event):
+        try:
+            event.acceptProposedAction()
+            p = event.position() if hasattr(event, "position") else event.pos()
+            self.update_hover(p.x(), p.y())
+        except Exception as e:
+            print(f"dragMoveEvent error: {e}")
+
+    def dropEvent(self, event):
+        try:
+            event.acceptProposedAction()
+            if event.mimeData().hasUrls():
+                urls = [u.toLocalFile() for u in event.mimeData().urls() if u.isLocalFile()]
+                if urls:
+                    self.current_files = urls
+            self.trigger_action()
+        except Exception as e:
+            print(f"dropEvent error: {e}")
+
     def trigger_action(self):
         idx = self.hovered_idx
         self.hide()
-        if idx is None or not self.current_files:
+        self.action_completed.emit()
+
+        if idx is None:
             return
 
         cat = CATEGORIES[self.category_idx]
         item = cat["center"] if idx == 999 else cat["petals"][idx]
 
-        for file_path in self.current_files:
+        files_to_use = list(self.current_files)
+        if not files_to_use:
+            files_to_use = get_explorer_selected_files()
+        if not files_to_use:
+            files_to_use = get_clipboard_files()
+
+        # If still no file detected, prompt the user with file picker!
+        if not files_to_use:
+            selected, _ = QFileDialog.getOpenFileNames(
+                None,
+                f"Dragged - Select file(s) for {item['name']}",
+                "",
+                "All Files (*.*)"
+            )
+            if selected:
+                files_to_use = selected
+            else:
+                return
+
+        for file_path in files_to_use:
             try:
                 src_size = os.path.getsize(file_path) if os.path.exists(file_path) else 0
                 if self.category_idx == 0 and idx != 999:
@@ -268,39 +391,31 @@ class RadialWheelWindow(QWidget):
                     pct = int(round((1.0 - (dst_size / src_size)) * 100))
                     savings = f" · {pct}% smaller"
 
-                # Notify via Windows Toast
-                if toaster:
-                    toaster.show_toast(
-                        f"Converted to {item['name']}",
-                        f"{Path(dest).name}{savings}",
-                        duration=3,
-                        threaded=True
-                    )
+                self.notify.emit(
+                    f"Converted to {item['name']}",
+                    f"{Path(dest).name}{savings}",
+                    False
+                )
+
+                # Reveal file in Explorer
+                try:
+                    subprocess.Popen(f'explorer /select,"{os.path.normpath(dest)}"', shell=True)
+                except Exception:
+                    pass
+
+                # Play chime sound
+                try:
+                    import winsound
+                    winsound.MessageBeep(winsound.MB_ICONASTERISK)
+                except Exception:
+                    pass
+
             except Exception as e:
-                print(f"Conversion error: {e}")
-
-    def dragEnterEvent(self, event):
-        try:
-            event.acceptProposedAction()
-            if event.mimeData().hasUrls():
-                self.current_files = [u.toLocalFile() for u in event.mimeData().urls() if u.isLocalFile()]
-        except Exception as e:
-            print(f"dragEnterEvent error: {e}")
-
-    def dragMoveEvent(self, event):
-        try:
-            event.acceptProposedAction()
-            p = event.position() if hasattr(event, "position") else event.pos()
-            self.update_hover(p.x(), p.y())
-        except Exception as e:
-            print(f"dragMoveEvent error: {e}")
-
-    def dropEvent(self, event):
-        try:
-            event.acceptProposedAction()
-            self.trigger_action()
-        except Exception as e:
-            print(f"dropEvent error: {e}")
+                self.notify.emit(
+                    f"Dragged Error ({item['name']})",
+                    str(e),
+                    True
+                )
 
     def paintEvent(self, event):
         try:
@@ -337,7 +452,6 @@ class RadialWheelWindow(QWidget):
 
             path = QPainterPath()
             steps = 20
-            # Outer arc
             r_out = self.outer_r + 6 if is_hovered else self.outer_r
             for s in range(steps + 1):
                 deg = start_deg + (end_deg - start_deg) * (s / steps)
@@ -348,7 +462,6 @@ class RadialWheelWindow(QWidget):
                     path.moveTo(x, y)
                 else:
                     path.lineTo(x, y)
-            # Inner arc
             for s in range(steps, -1, -1):
                 deg = start_deg + (end_deg - start_deg) * (s / steps)
                 rad = math.radians(deg)
@@ -386,7 +499,6 @@ class RadialWheelWindow(QWidget):
         center_item = cat["center"]
         pill_rect = QRectF(cx - 52, cy - 24, 104, 48)
 
-        # Determine what title and hint to show in the center
         if 0 <= (self.hovered_idx or -1) < 8:
             hov = cat["petals"][self.hovered_idx]
             display_title = hov["name"]
@@ -412,7 +524,7 @@ class RadialWheelWindow(QWidget):
             painter.setPen(QPen(QColor(*theme["ring_stroke"]), 1))
 
         painter.drawRoundedRect(pill_rect, 24, 24)
-        
+
         # Title text
         painter.setPen(QColor(255, 255, 255) if is_active_hub else QColor(*theme["petal_fg"]))
         painter.setFont(QFont("Segoe UI", 8, QFont.Weight.Black))

@@ -50,7 +50,7 @@ jobs:
       - name: Build Windows Executable (PyInstaller)
         run: |
           cd windows
-          pyinstaller --noconsole --onefile --name "Dragged" main.py
+          pyinstaller --noconsole --onefile --name "Dragged" --hidden-import win32com --hidden-import win32com.client --hidden-import pythoncom --hidden-import fitz --hidden-import PIL --hidden-import docx main.py
 
       - name: Build Inno Setup Installer
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
