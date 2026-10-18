@@ -85,11 +85,17 @@ jobs:
           name: windows-release
           path: release-artifacts
 
+      - name: Flatten Artifacts
+        run: |
+          mkdir -p final-artifacts
+          find release-artifacts -type f \( -name "*.dmg" -o -name "*.zip" -o -name "*.exe" \) -exec cp {} final-artifacts/ \;
+          ls -lh final-artifacts/
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: release-artifacts/*
+          files: final-artifacts/*
           draft: false
           prerelease: false
           generate_release_notes: true
