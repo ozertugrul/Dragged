@@ -27,19 +27,19 @@ public enum AppTheme: String, CaseIterable, Identifiable {
         }
     }
 
-    // Outer ambient frosted glass ring fill
+    // Outer ambient frosted glass ring tint (layered over .ultraThinMaterial)
     public var ringFill: Color {
         switch self {
         case .tangerine:
-            return Color(red: 0.96, green: 0.90, blue: 0.80).opacity(0.85)
+            return Color(red: 1.0, green: 0.92, blue: 0.82).opacity(0.35)
         case .cyberNeon:
-            return Color(red: 0.05, green: 0.08, blue: 0.16).opacity(0.88)
+            return Color(red: 0.04, green: 0.08, blue: 0.18).opacity(0.40)
         case .emerald:
-            return Color(red: 0.90, green: 0.96, blue: 0.92).opacity(0.88)
+            return Color(red: 0.88, green: 0.98, blue: 0.92).opacity(0.35)
         case .obsidian:
-            return Color(red: 0.08, green: 0.08, blue: 0.10).opacity(0.92)
+            return Color(red: 0.04, green: 0.04, blue: 0.06).opacity(0.55)
         case .sunsetRose:
-            return Color(red: 0.98, green: 0.90, blue: 0.93).opacity(0.88)
+            return Color(red: 1.0, green: 0.88, blue: 0.93).opacity(0.35)
         }
     }
 
@@ -47,15 +47,15 @@ public enum AppTheme: String, CaseIterable, Identifiable {
     public var ringStrokeGradient: [Color] {
         switch self {
         case .tangerine:
-            return [Color.orange.opacity(0.45), Color.white.opacity(0.4)]
+            return [Color.white.opacity(0.85), Color.orange.opacity(0.55), Color.white.opacity(0.20), Color.orange.opacity(0.35)]
         case .cyberNeon:
-            return [Color(red: 0.0, green: 0.95, blue: 1.0).opacity(0.6), Color(red: 0.6, green: 0.2, blue: 1.0).opacity(0.4)]
+            return [Color(red: 0.0, green: 0.95, blue: 1.0).opacity(0.85), Color(red: 0.6, green: 0.2, blue: 1.0).opacity(0.5), Color.white.opacity(0.3)]
         case .emerald:
-            return [Color(red: 0.06, green: 0.75, blue: 0.52).opacity(0.55), Color.white.opacity(0.4)]
+            return [Color.white.opacity(0.85), Color(red: 0.06, green: 0.75, blue: 0.52).opacity(0.65), Color.white.opacity(0.25)]
         case .obsidian:
-            return [Color.white.opacity(0.45), Color.gray.opacity(0.2)]
+            return [Color.white.opacity(0.70), Color.white.opacity(0.20), Color.gray.opacity(0.15), Color.white.opacity(0.35)]
         case .sunsetRose:
-            return [Color(red: 0.98, green: 0.25, blue: 0.45).opacity(0.55), Color.white.opacity(0.4)]
+            return [Color.white.opacity(0.85), Color(red: 0.98, green: 0.25, blue: 0.45).opacity(0.65), Color.white.opacity(0.25)]
         }
     }
 
@@ -63,31 +63,31 @@ public enum AppTheme: String, CaseIterable, Identifiable {
     public var innerRingBorder: Color {
         switch self {
         case .tangerine:
-            return Color.orange.opacity(0.35)
+            return Color.orange.opacity(0.30)
         case .cyberNeon:
-            return Color(red: 0.0, green: 0.95, blue: 1.0).opacity(0.4)
+            return Color(red: 0.0, green: 0.95, blue: 1.0).opacity(0.35)
         case .emerald:
-            return Color(red: 0.06, green: 0.75, blue: 0.52).opacity(0.4)
+            return Color(red: 0.06, green: 0.75, blue: 0.52).opacity(0.35)
         case .obsidian:
-            return Color.white.opacity(0.25)
+            return Color.white.opacity(0.20)
         case .sunsetRose:
-            return Color(red: 0.98, green: 0.25, blue: 0.45).opacity(0.4)
+            return Color(red: 0.98, green: 0.25, blue: 0.45).opacity(0.35)
         }
     }
 
-    // Petal default background
+    // Petal default background (layered over .ultraThinMaterial)
     public var petalDefaultFill: Color {
         switch self {
         case .tangerine:
-            return Color(red: 1.0, green: 0.96, blue: 0.89).opacity(0.94)
+            return Color.white.opacity(0.40)
         case .cyberNeon:
-            return Color(red: 0.11, green: 0.15, blue: 0.24).opacity(0.92)
+            return Color(red: 0.12, green: 0.18, blue: 0.30).opacity(0.45)
         case .emerald:
-            return Color(red: 0.95, green: 0.99, blue: 0.96).opacity(0.94)
+            return Color.white.opacity(0.40)
         case .obsidian:
-            return Color(red: 0.16, green: 0.16, blue: 0.19).opacity(0.94)
+            return Color(red: 0.16, green: 0.16, blue: 0.20).opacity(0.50)
         case .sunsetRose:
-            return Color(red: 1.0, green: 0.95, blue: 0.96).opacity(0.94)
+            return Color.white.opacity(0.40)
         }
     }
 
@@ -95,15 +95,15 @@ public enum AppTheme: String, CaseIterable, Identifiable {
     public var petalTextColor: Color {
         switch self {
         case .tangerine:
-            return Color(red: 0.12, green: 0.12, blue: 0.12)
+            return Color(red: 0.10, green: 0.10, blue: 0.10)
         case .cyberNeon:
-            return Color(red: 0.92, green: 0.96, blue: 1.0)
+            return Color(red: 0.92, green: 0.97, blue: 1.0)
         case .emerald:
-            return Color(red: 0.08, green: 0.22, blue: 0.14)
+            return Color(red: 0.06, green: 0.22, blue: 0.14)
         case .obsidian:
             return Color(red: 0.95, green: 0.95, blue: 0.95)
         case .sunsetRose:
-            return Color(red: 0.25, green: 0.08, blue: 0.14)
+            return Color(red: 0.25, green: 0.06, blue: 0.12)
         }
     }
 
@@ -111,15 +111,15 @@ public enum AppTheme: String, CaseIterable, Identifiable {
     public var activeGradient: [Color] {
         switch self {
         case .tangerine:
-            return [Color(red: 0.98, green: 0.42, blue: 0.12), Color(red: 0.88, green: 0.26, blue: 0.04)]
+            return [Color(red: 0.99, green: 0.45, blue: 0.12), Color(red: 0.88, green: 0.26, blue: 0.04)]
         case .cyberNeon:
             return [Color(red: 0.0, green: 0.95, blue: 1.0), Color(red: 0.31, green: 0.45, blue: 0.98)]
         case .emerald:
-            return [Color(red: 0.08, green: 0.78, blue: 0.54), Color(red: 0.03, green: 0.55, blue: 0.38)]
+            return [Color(red: 0.08, green: 0.80, blue: 0.54), Color(red: 0.02, green: 0.56, blue: 0.38)]
         case .obsidian:
-            return [Color(red: 0.45, green: 0.48, blue: 0.55), Color(red: 0.20, green: 0.22, blue: 0.28)]
+            return [Color(red: 0.50, green: 0.52, blue: 0.60), Color(red: 0.22, green: 0.24, blue: 0.30)]
         case .sunsetRose:
-            return [Color(red: 0.98, green: 0.25, blue: 0.42), Color(red: 0.78, green: 0.08, blue: 0.28)]
+            return [Color(red: 0.99, green: 0.25, blue: 0.45), Color(red: 0.80, green: 0.08, blue: 0.30)]
         }
     }
 
@@ -127,46 +127,46 @@ public enum AppTheme: String, CaseIterable, Identifiable {
     public var hoverGlowColor: Color {
         switch self {
         case .tangerine:
-            return Color.orange.opacity(0.65)
+            return Color.orange.opacity(0.70)
         case .cyberNeon:
-            return Color(red: 0.0, green: 0.95, blue: 1.0).opacity(0.7)
+            return Color(red: 0.0, green: 0.95, blue: 1.0).opacity(0.75)
         case .emerald:
-            return Color(red: 0.08, green: 0.78, blue: 0.54).opacity(0.65)
+            return Color(red: 0.08, green: 0.80, blue: 0.54).opacity(0.70)
         case .obsidian:
-            return Color.white.opacity(0.35)
+            return Color.white.opacity(0.40)
         case .sunsetRose:
-            return Color(red: 0.98, green: 0.25, blue: 0.42).opacity(0.65)
+            return Color(red: 0.99, green: 0.25, blue: 0.45).opacity(0.70)
         }
     }
 
-    // Header background & border
+    // Header background & border (layered over .ultraThinMaterial)
     public var headerBackground: Color {
         switch self {
         case .tangerine:
-            return Color(red: 1.0, green: 0.98, blue: 0.94).opacity(0.95)
+            return Color.white.opacity(0.45)
         case .cyberNeon:
-            return Color(red: 0.08, green: 0.12, blue: 0.20).opacity(0.95)
+            return Color(red: 0.06, green: 0.10, blue: 0.18).opacity(0.55)
         case .emerald:
-            return Color(red: 0.94, green: 0.99, blue: 0.96).opacity(0.95)
+            return Color.white.opacity(0.45)
         case .obsidian:
-            return Color(red: 0.12, green: 0.12, blue: 0.15).opacity(0.95)
+            return Color(red: 0.10, green: 0.10, blue: 0.13).opacity(0.60)
         case .sunsetRose:
-            return Color(red: 1.0, green: 0.96, blue: 0.97).opacity(0.95)
+            return Color.white.opacity(0.45)
         }
     }
 
     public var headerBorder: Color {
         switch self {
         case .tangerine:
-            return Color(red: 0.98, green: 0.58, blue: 0.16).opacity(0.4)
+            return Color.white.opacity(0.75)
         case .cyberNeon:
-            return Color(red: 0.0, green: 0.95, blue: 1.0).opacity(0.4)
+            return Color(red: 0.0, green: 0.95, blue: 1.0).opacity(0.55)
         case .emerald:
-            return Color(red: 0.08, green: 0.78, blue: 0.54).opacity(0.4)
+            return Color.white.opacity(0.75)
         case .obsidian:
-            return Color.white.opacity(0.3)
+            return Color.white.opacity(0.35)
         case .sunsetRose:
-            return Color(red: 0.98, green: 0.25, blue: 0.42).opacity(0.4)
+            return Color.white.opacity(0.75)
         }
     }
 
@@ -175,7 +175,7 @@ public enum AppTheme: String, CaseIterable, Identifiable {
         case .tangerine:
             return Color(red: 0.15, green: 0.10, blue: 0.05)
         case .cyberNeon:
-            return Color(red: 0.9, green: 0.95, blue: 1.0)
+            return Color(red: 0.90, green: 0.96, blue: 1.0)
         case .emerald:
             return Color(red: 0.06, green: 0.20, blue: 0.12)
         case .obsidian:
@@ -188,15 +188,15 @@ public enum AppTheme: String, CaseIterable, Identifiable {
     public var dotActiveColor: Color {
         switch self {
         case .tangerine:
-            return Color(red: 0.98, green: 0.42, blue: 0.12)
+            return Color(red: 0.99, green: 0.45, blue: 0.12)
         case .cyberNeon:
             return Color(red: 0.0, green: 0.95, blue: 1.0)
         case .emerald:
-            return Color(red: 0.08, green: 0.78, blue: 0.54)
+            return Color(red: 0.08, green: 0.80, blue: 0.54)
         case .obsidian:
             return Color.white
         case .sunsetRose:
-            return Color(red: 0.98, green: 0.25, blue: 0.42)
+            return Color(red: 0.99, green: 0.25, blue: 0.45)
         }
     }
 }

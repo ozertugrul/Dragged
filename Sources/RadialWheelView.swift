@@ -305,7 +305,6 @@ public class RadialWheelState: ObservableObject {
 public struct RadialWheelView: View {
     @ObservedObject public var state: RadialWheelState
     @ObservedObject public var themeManager: ThemeManager
-    @State private var appearAnimation: Bool = false
 
     public init(state: RadialWheelState = .shared, themeManager: ThemeManager = .shared) {
         self.state = state
@@ -316,10 +315,14 @@ public struct RadialWheelView: View {
         let theme = themeManager.currentTheme
 
         ZStack {
-            // 1. Ambient Frosted Glass Outer Ring
+            // 1. Ambient Frosted Glass Outer Ring (Liquid Glass)
             Circle()
-                .fill(theme.ringFill)
+                .fill(.ultraThinMaterial)
                 .frame(width: state.outerRadius * 2 + 18, height: state.outerRadius * 2 + 18)
+                .overlay(
+                    Circle()
+                        .fill(theme.ringFill)
+                )
                 .overlay(
                     Circle()
                         .stroke(
@@ -331,7 +334,7 @@ public struct RadialWheelView: View {
                             lineWidth: 2
                         )
                 )
-                .shadow(color: Color.black.opacity(theme.isDark ? 0.5 : 0.30), radius: 26, x: 0, y: 12)
+                .shadow(color: Color.black.opacity(theme.isDark ? 0.45 : 0.22), radius: 26, x: 0, y: 12)
 
             // 2. Inner Ring Boundary
             Circle()
@@ -345,6 +348,17 @@ public struct RadialWheelView: View {
                 let item = state.currentPetals[index]
 
                 ZStack {
+                    // 1. Frosted Liquid Glass Base
+                    RoundedPetalShape(
+                        startAngle: startAngle,
+                        endAngle: endAngle,
+                        innerRadius: state.innerRadius + 4,
+                        outerRadius: isHovered ? state.outerRadius + 6 : state.outerRadius,
+                        gapAngle: 3.2
+                    )
+                    .fill(.ultraThinMaterial)
+
+                    // 2. Translucent Glass Tint or Blooming Hover Gradient
                     RoundedPetalShape(
                         startAngle: startAngle,
                         endAngle: endAngle,
@@ -371,9 +385,25 @@ public struct RadialWheelView: View {
                             outerRadius: isHovered ? state.outerRadius + 6 : state.outerRadius,
                             gapAngle: 3.2
                         )
-                        .stroke(isHovered ? Color.white.opacity(0.85) : (theme.isDark ? Color.white.opacity(0.2) : Color.white.opacity(0.6)), lineWidth: isHovered ? 1.6 : 1.2)
+                        .stroke(
+                            isHovered
+                            ? AnyShapeStyle(Color.white.opacity(0.95))
+                            : AnyShapeStyle(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(theme.isDark ? 0.40 : 0.75),
+                                        Color.white.opacity(theme.isDark ? 0.15 : 0.30),
+                                        Color.white.opacity(theme.isDark ? 0.05 : 0.10),
+                                        Color.white.opacity(theme.isDark ? 0.25 : 0.45)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            ),
+                            lineWidth: isHovered ? 1.8 : 1.2
+                        )
                     )
-                    .shadow(color: isHovered ? theme.hoverGlowColor : Color.black.opacity(0.08), radius: isHovered ? 14 : 3)
+                    .shadow(color: isHovered ? theme.hoverGlowColor : Color.black.opacity(0.06), radius: isHovered ? 16 : 3)
 
                     // Content inside Petal
                     let midAngle = Angle(degrees: Double(index) * 45.0 - 90.0)
@@ -431,7 +461,7 @@ public struct RadialWheelView: View {
                 }
             }
 
-            // 4. Center Pill with Dynamic Hint
+            // 4. Center Pill with Dynamic Hint (Liquid Glass)
             let isCenterHovered = state.hoveredIndex == 999
             let isHoveredPetal = (state.hoveredIndex != nil && state.hoveredIndex! >= 0 && state.hoveredIndex! < 8)
             let centerItem = state.currentCenter
@@ -448,6 +478,10 @@ public struct RadialWheelView: View {
             }) {
                 ZStack {
                     Capsule()
+                        .fill(.ultraThinMaterial)
+                        .frame(width: 104, height: 48)
+
+                    Capsule()
                         .fill(
                             isCenterActive
                             ? AnyShapeStyle(
@@ -462,7 +496,21 @@ public struct RadialWheelView: View {
                         .frame(width: 104, height: 48)
                         .overlay(
                             Capsule()
-                                .stroke(isCenterActive ? Color.white.opacity(0.85) : (theme.isDark ? Color.white.opacity(0.25) : Color.white.opacity(0.65)), lineWidth: 1.5)
+                                .stroke(
+                                    isCenterActive
+                                    ? AnyShapeStyle(Color.white.opacity(0.95))
+                                    : AnyShapeStyle(
+                                        LinearGradient(
+                                            colors: [
+                                                Color.white.opacity(theme.isDark ? 0.40 : 0.75),
+                                                Color.white.opacity(theme.isDark ? 0.15 : 0.30)
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    ),
+                                    lineWidth: 1.5
+                                )
                         )
                         .shadow(color: isCenterActive ? theme.hoverGlowColor : Color.black.opacity(0.12), radius: 10)
 
@@ -494,7 +542,7 @@ public struct RadialWheelView: View {
                 }
             }
 
-            // 5. Category Header Pill with Page Dots & Scroll Indicator
+            // 5. Category Header Pill with Page Dots & Scroll Indicator (Liquid Glass)
             HStack(spacing: 8) {
                 Image(systemName: "arrow.up.and.down")
                     .font(.system(size: 9, weight: .bold))
@@ -519,23 +567,24 @@ public struct RadialWheelView: View {
             .padding(.vertical, 6)
             .background(
                 Capsule()
-                    .fill(theme.headerBackground)
+                    .fill(.ultraThinMaterial)
+                    .overlay(Capsule().fill(theme.headerBackground))
                     .overlay(
                         Capsule()
-                            .stroke(theme.headerBorder, lineWidth: 1.5)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [Color.white.opacity(0.80), Color.white.opacity(0.25)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1.5
+                            )
                     )
                     .shadow(color: Color.black.opacity(theme.isDark ? 0.35 : 0.16), radius: 6, y: 2)
             )
             .offset(y: -(state.outerRadius + 28))
         }
         .frame(width: state.totalSize, height: state.totalSize)
-        .scaleEffect(appearAnimation ? 1.0 : 0.4)
-        .opacity(appearAnimation ? 1.0 : 0.0)
-        .onAppear {
-            withAnimation(.spring(response: 0.28, dampingFraction: 0.75)) {
-                appearAnimation = true
-            }
-        }
     }
 
     private func petalAngles(for index: Int) -> (Angle, Angle) {
