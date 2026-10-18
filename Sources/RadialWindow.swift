@@ -6,7 +6,7 @@ public class RadialWindow: NSPanel, NSDraggingDestination {
 
     public let state = RadialWheelState.shared
     private var hostingView: NSHostingView<RadialWheelView>? = nil
-    private let windowSize: CGFloat = 390
+    private let windowSize: CGFloat = 440
 
     private init() {
         super.init(

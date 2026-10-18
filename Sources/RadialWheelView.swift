@@ -77,7 +77,7 @@ public class RadialWheelState: ObservableObject {
     public let totalPetals = 8
     public let innerRadius: CGFloat = 68
     public let outerRadius: CGFloat = 162
-    public let totalSize: CGFloat = 380
+    public let totalSize: CGFloat = 440
 
     // Cooldown for trackpad/mouse scroll gestures
     private var lastScrollTime: Date = Date.distantPast
@@ -475,37 +475,39 @@ public struct RadialWheelView: View {
                 }
             }
 
-            // 5. Category Header Pill with Page Dots & Scroll Tip
-            VStack(spacing: 3) {
-                HStack(spacing: 6) {
-                    Text(state.activeCategory.title)
-                        .font(.system(size: 10, weight: .black, design: .rounded))
-                        .foregroundColor(Color(red: 0.25, green: 0.15, blue: 0.05))
-                        .tracking(0.8)
+            // 5. Category Header Pill with Page Dots & Scroll Indicator
+            HStack(spacing: 8) {
+                Image(systemName: "arrow.up.and.down")
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundColor(Color(red: 0.98, green: 0.42, blue: 0.12))
 
-                    // 4 glowing category dots
-                    HStack(spacing: 4) {
-                        ForEach(WheelCategory.allCases, id: \.self) { cat in
-                            Circle()
-                                .fill(cat == state.activeCategory ? Color.orange : Color.black.opacity(0.2))
-                                .frame(width: cat == state.activeCategory ? 6 : 4, height: cat == state.activeCategory ? 6 : 4)
-                                .animation(.spring(response: 0.25, dampingFraction: 0.7), value: state.activeCategory)
-                        }
+                Text(state.activeCategory.title)
+                    .font(.system(size: 10.5, weight: .black, design: .rounded))
+                    .foregroundColor(Color(red: 0.22, green: 0.15, blue: 0.08))
+                    .tracking(0.8)
+
+                // 4 glowing category dots
+                HStack(spacing: 4) {
+                    ForEach(WheelCategory.allCases, id: \.self) { cat in
+                        Circle()
+                            .fill(cat == state.activeCategory ? Color(red: 0.98, green: 0.42, blue: 0.12) : Color.black.opacity(0.18))
+                            .frame(width: cat == state.activeCategory ? 6 : 4, height: cat == state.activeCategory ? 6 : 4)
+                            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: state.activeCategory)
                     }
                 }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(
-                    Capsule()
-                        .fill(Color(red: 1.0, green: 0.98, blue: 0.94).opacity(0.92))
-                        .shadow(color: Color.black.opacity(0.15), radius: 4, y: 2)
-                )
-
-                Text("scroll to switch")
-                    .font(.system(size: 8, weight: .bold, design: .rounded))
-                    .foregroundColor(Color.orange.opacity(0.85))
             }
-            .offset(y: -(state.outerRadius + 18))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(
+                Capsule()
+                    .fill(Color(red: 1.0, green: 0.98, blue: 0.94).opacity(0.95))
+                    .overlay(
+                        Capsule()
+                            .stroke(Color.white.opacity(0.85), lineWidth: 1.5)
+                    )
+                    .shadow(color: Color.black.opacity(0.16), radius: 6, y: 2)
+            )
+            .offset(y: -(state.outerRadius + 28))
         }
         .frame(width: state.totalSize, height: state.totalSize)
         .scaleEffect(appearAnimation ? 1.0 : 0.4)
