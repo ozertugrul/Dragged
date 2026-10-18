@@ -1,0 +1,95 @@
+name: Build & Release Dragged
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    name: Build macOS Universal (Apple Silicon & Intel)
+    runs-on: macos-14
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build Universal App & DMG
+        run: |
+          chmod +x ./build.sh
+          ./build.sh
+
+      - name: Upload macOS Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-release
+          path: |
+            release/Dragged-macOS-Universal.dmg
+            release/Dragged-macOS-Universal.zip
+
+  build-windows:
+    name: Build Windows x64 (Executable & Installer)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r windows/requirements.txt
+
+      - name: Build Windows Executable (PyInstaller)
+        run: |
+          cd windows
+          pyinstaller --noconsole --onefile --name "Dragged" main.py
+
+      - name: Build Inno Setup Installer
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        with:
+          path: windows/installer.iss
+
+      - name: Upload Windows Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: |
+            windows/dist/Dragged.exe
+            release/Dragged-Setup-Windows-x64.exe
+
+  publish-release:
+    name: Publish GitHub Release
+    needs: [build-macos, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download macOS Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-release
+          path: release-artifacts
+
+      - name: Download Windows Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-release
+          path: release-artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: release-artifacts/*
+          draft: false
+          prerelease: false
+          generate_release_notes: true

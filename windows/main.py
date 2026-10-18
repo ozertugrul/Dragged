@@ -1,0 +1,66 @@
+import sys
+from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton
+from PyQt6.QtGui import QIcon, QPixmap, QColor, QPainter, QAction
+from PyQt6.QtCore import Qt
+from radial_wheel import RadialWheelWindow
+from hook import GlobalDragHook
+
+def create_tray_icon():
+    # Render custom radial wheel tray icon
+    pixmap = QPixmap(32, 32)
+    pixmap.fill(Qt.GlobalColor.transparent)
+    painter = QPainter(pixmap)
+    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+    painter.setPen(QColor(255, 140, 20))
+    painter.setBrush(QColor(255, 140, 20, 200))
+    painter.drawEllipse(4, 4, 24, 24)
+    painter.setBrush(QColor(255, 255, 255))
+    painter.drawEllipse(12, 12, 8, 8)
+    painter.end()
+    return QIcon(pixmap)
+
+def main():
+    app = QApplication(sys.argv)
+    app.setQuitOnLastWindowClosed(False)
+
+    wheel_window = RadialWheelWindow()
+    hook = GlobalDragHook()
+
+    def on_summon():
+        if not wheel_window.isVisible():
+            wheel_window.show_at_cursor()
+
+    def on_dismiss():
+        if wheel_window.isVisible():
+            wheel_window.hide()
+
+    hook.summon_wheel.connect(on_summon)
+    hook.dismiss_wheel.connect(on_dismiss)
+    hook.start()
+
+    tray_icon = QSystemTrayIcon(create_tray_icon(), app)
+    tray_icon.setToolTip("Dragged: Radial Gesture File Converter")
+
+    menu = QMenu()
+    title_action = QAction("Dragged (v1.0.0)", menu)
+    title_action.setEnabled(False)
+    menu.addAction(title_action)
+    menu.addSeparator()
+
+    trigger_action = QAction("Trigger Radial Wheel at Cursor", menu)
+    trigger_action.triggered.connect(lambda: wheel_window.show_at_cursor())
+    menu.addAction(trigger_action)
+
+    menu.addSeparator()
+    quit_action = QAction("Quit Dragged", menu)
+    quit_action.triggered.connect(app.quit)
+    menu.addAction(quit_action)
+
+    tray_icon.setContextMenu(menu)
+    tray_icon.show()
+
+    print("🍊 Dragged for Windows started. Hold Shift and drag any file to open the Radial Wheel.")
+    sys.exit(app.exec())
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,23 @@
+feature,area,priority,original,clone,notes
+Shift+Drag Radial Wheel,gesture,must,yes,yes,Circular pie menu centered at mouse
+Option+Shift Tool Wheel,gesture,must,yes,yes,Compress scale grayscale gif mute tools
+Auto format filtering by file type,engine,must,yes,yes,Images videos audio documents
+Local sips image processing,engine,must,yes,yes,PNG JPEG WebP HEIC TIFF GIF BMP PDF
+Local ffmpeg video/audio processing,engine,must,yes,yes,MP4 MOV WebM MKV GIF MP3 WAV FLAC
+Local PDFKit document processing,engine,must,yes,yes,PDF to images text extract
+Save converted file next to original,filesystem,must,yes,yes,Zero upload 100% offline
+Non-destructive renaming on conflict,filesystem,must,yes,yes,Appends _1 _2 instead of overwriting
+Audio & haptic feedback on completion,ux,must,yes,yes,Plays Glass sound on success
+Menu bar status item,companion,must,yes,yes,Discreet 🍊 icon in macOS menu bar
+Floating Drop Target Pill,companion,must,yes,yes,On-screen droplet for fast drag
+Desktop Converter Window,ui,must,yes,yes,Full UI with recent conversions list
+Batch Multi-File Processing,engine,should,no,yes,Power improvement over original
+Custom Output Folder Setting,settings,should,no,yes,Option to save to designated folder
+Clipboard Image Converter,utilities,should,no,yes,Convert directly from copied screenshot
+Image Quality Slider Setting,settings,should,no,yes,Fine-tuned compression control
+Global Shortcut to open wheel,gesture,should,no,yes,Control+Shift or custom hotkey
+Finder Reveal Button,ui,should,yes,yes,One-click reveal converted file in Finder
+Customizable Format Presets,settings,could,no,yes,Choose favorite wheel formats
+Dark and Light Mode Auto Adaptation,design,could,yes,yes,Follows macOS system theme
+Progress Bar & Live Status HUD,ui,could,yes,yes,Visual feedback during large video renders
+Automatic ffmpeg / toolchain check,system,could,yes,yes,Warns and aids if dependencies missing

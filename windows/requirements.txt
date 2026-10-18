@@ -1,0 +1,6 @@
+PyQt6>=6.5.0
+Pillow>=10.0.0
+pynput>=1.7.6
+win10toast>=0.9
+pymupdf>=1.23.0
+pyinstaller>=6.0.0
