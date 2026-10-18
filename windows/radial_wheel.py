@@ -19,58 +19,58 @@ CATEGORIES = [
     {
         "title": "IMAGE FORMATS",
         "petals": [
-            {"name": "PNG", "id": "png"},
-            {"name": "WEBP", "id": "webp"},
-            {"name": "HEIC", "id": "heic"},
-            {"name": "GIF", "id": "gif"},
-            {"name": "AVIF", "id": "avif"},
-            {"name": "BMP", "id": "bmp"},
-            {"name": "PDF", "id": "pdf"},
-            {"name": "DOCX", "id": "docx"},
+            {"name": "PNG", "id": "png", "hint": "Lossless · transparency"},
+            {"name": "WEBP", "id": "webp", "hint": "Smallest for web"},
+            {"name": "HEIC", "id": "heic", "hint": "iPhone format"},
+            {"name": "GIF", "id": "gif", "hint": "Animated · web"},
+            {"name": "AVIF", "id": "avif", "hint": "Next-gen, tiny"},
+            {"name": "BMP", "id": "bmp", "hint": "Uncompressed"},
+            {"name": "PDF", "id": "pdf", "hint": "Document pages"},
+            {"name": "DOCX", "id": "docx", "hint": "Editable Word"},
         ],
-        "center": {"name": "TIFF", "id": "tiff"}
+        "center": {"name": "TIFF", "id": "tiff", "hint": "Print · archival"}
     },
     {
         "title": "TOOLS & EDIT",
         "petals": [
-            {"name": "COMPRESS", "id": "compress_image"},
-            {"name": "METADATA", "id": "metadata"},
-            {"name": "EDIT", "id": "edit"},
-            {"name": "ANNOTATE", "id": "annotate"},
-            {"name": "REMOVE BG", "id": "remove_bg"},
-            {"name": "PREVIEW", "id": "preview"},
-            {"name": "CROP", "id": "crop"},
-            {"name": "REDACT", "id": "redact"},
+            {"name": "COMPRESS", "id": "compress_image", "hint": "Shrink file size"},
+            {"name": "METADATA", "id": "metadata", "hint": "Strip GPS & EXIF"},
+            {"name": "EDIT", "id": "edit", "hint": "Light · colour · rotate"},
+            {"name": "ANNOTATE", "id": "annotate", "hint": "Arrows · text · steps"},
+            {"name": "REMOVE BG", "id": "remove_bg", "hint": "Cut out subject"},
+            {"name": "PREVIEW", "id": "preview", "hint": "Quick look"},
+            {"name": "CROP", "id": "crop", "hint": "Trim to ratio"},
+            {"name": "REDACT", "id": "redact", "hint": "Hide sensitive info"},
         ],
-        "center": {"name": "ADD BG", "id": "add_bg"}
+        "center": {"name": "ADD BG", "id": "add_bg", "hint": "Solid or gradient"}
     },
     {
         "title": "VIDEO & AUDIO",
         "petals": [
-            {"name": "MP4", "id": "to_mp4"},
-            {"name": "GIF", "id": "video_to_gif"},
-            {"name": "MP3", "id": "extract_audio"},
-            {"name": "WAV", "id": "to_wav"},
-            {"name": "MOV", "id": "to_mov"},
-            {"name": "WEBM", "id": "to_webm"},
-            {"name": "M4A", "id": "to_m4a"},
-            {"name": "COMPRESS", "id": "compress_video"},
+            {"name": "MP4", "id": "to_mp4", "hint": "Universal video"},
+            {"name": "GIF", "id": "video_to_gif", "hint": "Clip to GIF"},
+            {"name": "MP3", "id": "extract_audio", "hint": "Extract sound"},
+            {"name": "WAV", "id": "to_wav", "hint": "Lossless audio"},
+            {"name": "MOV", "id": "to_mov", "hint": "QuickTime video"},
+            {"name": "WEBM", "id": "to_webm", "hint": "HTML5 video"},
+            {"name": "M4A", "id": "to_m4a", "hint": "Apple audio"},
+            {"name": "COMPRESS", "id": "compress_video", "hint": "Reduce bitrate"},
         ],
-        "center": {"name": "MUTE", "id": "mute_video"}
+        "center": {"name": "MUTE", "id": "mute_video", "hint": "Strip audio track"}
     },
     {
         "title": "PDF & DOCUMENTS",
         "petals": [
-            {"name": "TO PDF", "id": "to_pdf"},
-            {"name": "COMPRESS", "id": "compress_pdf"},
-            {"name": "SPLIT", "id": "split_pdf"},
-            {"name": "MERGE", "id": "merge_pdf"},
-            {"name": "OCR TEXT", "id": "ocr_pdf"},
-            {"name": "TO IMAGES", "id": "pdf_to_images"},
-            {"name": "TO WORD", "id": "pdf_to_docx"},
-            {"name": "PRINT", "id": "print_doc"},
+            {"name": "TO PDF", "id": "to_pdf", "hint": "Export to PDF"},
+            {"name": "COMPRESS", "id": "compress_pdf", "hint": "Shrink PDF size"},
+            {"name": "SPLIT", "id": "split_pdf", "hint": "Separate pages"},
+            {"name": "MERGE", "id": "merge_pdf", "hint": "Combine into one"},
+            {"name": "OCR TEXT", "id": "ocr_pdf", "hint": "Recognize text"},
+            {"name": "TO IMAGES", "id": "pdf_to_images", "hint": "Page by page images"},
+            {"name": "TO WORD", "id": "pdf_to_docx", "hint": "Convert to DOCX"},
+            {"name": "PRINT", "id": "print_doc", "hint": "Send to printer"},
         ],
-        "center": {"name": "PREVIEW", "id": "preview"}
+        "center": {"name": "PREVIEW", "id": "preview", "hint": "View document"}
     }
 ]
 
@@ -86,7 +86,7 @@ class RadialWheelWindow(QWidget):
         self.setAcceptDrops(True)
         self.setMouseTracking(True)
 
-        self.size_val = 390
+        self.size_val = 440
         self.setFixedSize(self.size_val, self.size_val)
 
         self.inner_r = 68
@@ -113,6 +113,14 @@ class RadialWheelWindow(QWidget):
         self.show()
         self.raise_()
         self.activateWindow()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Escape:
+            self.hide()
+        elif event.key() in (Qt.Key.Key_Tab, Qt.Key.Key_Shift):
+            self.category_idx = (self.category_idx + 1) % len(CATEGORIES)
+            self.hovered_idx = None
+            self.update()
 
     def wheelEvent(self, event):
         # Rotate category on scroll
@@ -273,12 +281,27 @@ class RadialWheelWindow(QWidget):
             text_rect = QRectF(tx - 40, ty - 12, 80, 24)
             painter.drawText(text_rect, Qt.AlignmentFlag.AlignCenter, petal["name"])
 
-        # 4. Center Pill
+        # 4. Center Pill with Dynamic Hint
         is_center_hovered = (self.hovered_idx == 999)
         center_item = cat["center"]
-        pill_rect = QRectF(cx - 49, cy - 23, 98, 46)
+        pill_rect = QRectF(cx - 52, cy - 24, 104, 48)
 
-        if is_center_hovered:
+        # Determine what title and hint to show in the center
+        if 0 <= (self.hovered_idx or -1) < 8:
+            hov = cat["petals"][self.hovered_idx]
+            display_title = hov["name"]
+            display_hint = hov.get("hint", "")
+            is_active_hub = True
+        elif is_center_hovered:
+            display_title = center_item["name"]
+            display_hint = center_item.get("hint", "")
+            is_active_hub = True
+        else:
+            display_title = center_item["name"]
+            display_hint = "⇧ TAB / SCROLL"
+            is_active_hub = False
+
+        if is_active_hub:
             grad = QLinearGradient(0, 0, self.size_val, self.size_val)
             grad.setColorAt(0, QColor(250, 108, 30))
             grad.setColorAt(1, QColor(225, 65, 10))
@@ -288,25 +311,33 @@ class RadialWheelWindow(QWidget):
             painter.setBrush(QBrush(QColor(255, 245, 230, 245)))
             painter.setPen(QPen(QColor(255, 140, 20, 180), 1))
 
-        painter.drawRoundedRect(pill_rect, 23, 23)
-        painter.setPen(QColor(255, 255, 255) if is_center_hovered else QColor(35, 35, 35))
-        painter.setFont(QFont("Segoe UI", 9, QFont.Weight.Black))
-        painter.drawText(pill_rect, Qt.AlignmentFlag.AlignCenter, center_item["name"])
+        painter.drawRoundedRect(pill_rect, 24, 24)
+        
+        # Title text
+        painter.setPen(QColor(255, 255, 255) if is_active_hub else QColor(35, 35, 35))
+        painter.setFont(QFont("Segoe UI", 8, QFont.Weight.Black))
+        painter.drawText(QRectF(cx - 50, cy - 20, 100, 18), Qt.AlignmentFlag.AlignCenter, display_title)
+
+        # Hint subtext
+        painter.setPen(QColor(255, 255, 255, 210) if is_active_hub else QColor(110, 100, 90))
+        painter.setFont(QFont("Segoe UI", 6, QFont.Weight.DemiBold))
+        painter.drawText(QRectF(cx - 50, cy + 1, 100, 16), Qt.AlignmentFlag.AlignCenter, display_hint)
 
         # 5. Top Category Header & Page Dots
-        header_rect = QRectF(cx - 85, 8, 170, 22)
+        header_y = cy - self.outer_r - 38
+        header_rect = QRectF(cx - 85, header_y, 170, 24)
         painter.setBrush(QBrush(QColor(255, 250, 242, 235)))
         painter.setPen(QPen(QColor(255, 150, 40, 120), 1))
-        painter.drawRoundedRect(header_rect, 11, 11)
+        painter.drawRoundedRect(header_rect, 12, 12)
 
         painter.setPen(QColor(40, 25, 10))
         painter.setFont(QFont("Segoe UI", 7, QFont.Weight.Black))
-        painter.drawText(QRectF(cx - 80, 8, 110, 22), Qt.AlignmentFlag.AlignCenter, cat["title"])
+        painter.drawText(QRectF(cx - 80, header_y, 110, 24), Qt.AlignmentFlag.AlignCenter, cat["title"])
 
         # 4 Page Dots
         for d in range(4):
             dot_x = cx + 38 + (d * 7)
-            dot_y = 19
+            dot_y = header_y + 12
             is_active = (d == self.category_idx)
             painter.setBrush(QBrush(QColor(250, 108, 30) if is_active else QColor(0, 0, 0, 50)))
             painter.setPen(Qt.PenStyle.NoPen)

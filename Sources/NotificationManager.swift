@@ -12,6 +12,32 @@ public class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     public func setup() {
         let center = UNUserNotificationCenter.current()
         center.delegate = self
+
+        // Interactive Notification Actions: Open, Show in Finder, Undo
+        let openAction = UNNotificationAction(
+            identifier: "OPEN_ACTION",
+            title: "Open",
+            options: [.foreground]
+        )
+        let revealAction = UNNotificationAction(
+            identifier: "REVEAL_ACTION",
+            title: "Show in Finder",
+            options: []
+        )
+        let undoAction = UNNotificationAction(
+            identifier: "UNDO_ACTION",
+            title: "Undo",
+            options: [.destructive]
+        )
+
+        let conversionCategory = UNNotificationCategory(
+            identifier: "CONVERSION_RESULT",
+            actions: [openAction, revealAction, undoAction],
+            intentIdentifiers: [],
+            options: []
+        )
+
+        center.setNotificationCategories([conversionCategory])
         center.requestAuthorization(options: [.alert, .sound]) { granted, error in
             if let error = error {
                 NSLog("Notification authorization error: \(error.localizedDescription)")
@@ -24,25 +50,37 @@ public class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
 
         var sizeDiffText = ""
         if sourceSize > 0 && destSize > 0 {
+            let srcMB = ByteCountFormatter.string(fromByteCount: sourceSize, countStyle: .file)
+            let dstMB = ByteCountFormatter.string(fromByteCount: destSize, countStyle: .file)
             if destSize < sourceSize {
                 let saved = Int(round((1.0 - (Double(destSize) / Double(sourceSize))) * 100.0))
-                sizeDiffText = " • Saved \(saved)%"
+                sizeDiffText = "\(srcMB) → \(dstMB) · \(saved)% smaller"
             } else {
-                let srcMB = ByteCountFormatter.string(fromByteCount: sourceSize, countStyle: .file)
-                let dstMB = ByteCountFormatter.string(fromByteCount: destSize, countStyle: .file)
-                sizeDiffText = " (\(srcMB) → \(dstMB))"
+                sizeDiffText = "\(srcMB) → \(dstMB)"
             }
         }
 
-        let body = "\(filename)\(sizeDiffText)"
-        sendNotification(title: actionTitle, subtitle: "Saved in Finder", body: body, fileURL: destinationURL)
+        let body = sizeDiffText.isEmpty ? filename : "\(filename)\n\(sizeDiffText)"
+        sendNotification(
+            title: actionTitle,
+            subtitle: "Saved next to original",
+            body: body,
+            fileURL: destinationURL,
+            categoryIdentifier: "CONVERSION_RESULT"
+        )
     }
 
     public func notifyFailure(actionTitle: String, errorMessage: String) {
-        sendNotification(title: "\(actionTitle) Failed", subtitle: nil, body: errorMessage, fileURL: nil)
+        sendNotification(title: "\(actionTitle) Failed", subtitle: nil, body: errorMessage, fileURL: nil, categoryIdentifier: nil)
     }
 
-    public func sendNotification(title: String, subtitle: String? = nil, body: String, fileURL: URL? = nil) {
+    public func sendNotification(
+        title: String,
+        subtitle: String? = nil,
+        body: String,
+        fileURL: URL? = nil,
+        categoryIdentifier: String? = nil
+    ) {
         let center = UNUserNotificationCenter.current()
         let content = UNMutableNotificationContent()
         content.title = title
@@ -51,6 +89,9 @@ public class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         }
         content.body = body
         content.sound = .default
+        if let catId = categoryIdentifier {
+            content.categoryIdentifier = catId
+        }
 
         if let url = fileURL {
             content.userInfo = ["fileURL": url.path]
@@ -77,7 +118,16 @@ public class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     ) {
         if let path = response.notification.request.content.userInfo["fileURL"] as? String {
             let url = URL(fileURLWithPath: path)
-            NSWorkspace.shared.activateFileViewerSelecting([url])
+            switch response.actionIdentifier {
+            case "OPEN_ACTION":
+                NSWorkspace.shared.open(url)
+            case "UNDO_ACTION":
+                try? FileManager.default.trashItem(at: url, resultingItemURL: nil)
+            case "REVEAL_ACTION", UNNotificationDefaultActionIdentifier:
+                NSWorkspace.shared.activateFileViewerSelecting([url])
+            default:
+                break
+            }
         }
         completionHandler()
     }

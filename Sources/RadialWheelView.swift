@@ -22,12 +22,14 @@ public struct WheelItem {
     public let name: String
     public let id: String
     public let icon: String?
+    public let hint: String?
     public let isTool: Bool
 
-    public init(name: String, id: String, icon: String? = nil, isTool: Bool = false) {
+    public init(name: String, id: String, icon: String? = nil, hint: String? = nil, isTool: Bool = false) {
         self.name = name
         self.id = id
         self.icon = icon
+        self.hint = hint
         self.isTool = isTool
     }
 }
@@ -85,55 +87,55 @@ public class RadialWheelState: ObservableObject {
 
     // --- Page 0: Image Formats (Image 1) ---
     public let formatPetals: [WheelItem] = [
-        WheelItem(name: "PNG", id: "png"),
-        WheelItem(name: "WEBP", id: "webp"),
-        WheelItem(name: "HEIC", id: "heic"),
-        WheelItem(name: "GIF", id: "gif"),
-        WheelItem(name: "AVIF", id: "avif"),
-        WheelItem(name: "BMP", id: "bmp"),
-        WheelItem(name: "PDF", id: "pdf"),
-        WheelItem(name: "DOCX", id: "docx")
+        WheelItem(name: "PNG", id: "png", hint: "Lossless · transparency"),
+        WheelItem(name: "WEBP", id: "webp", hint: "Smallest for web"),
+        WheelItem(name: "HEIC", id: "heic", hint: "iPhone format"),
+        WheelItem(name: "GIF", id: "gif", hint: "Animated · web"),
+        WheelItem(name: "AVIF", id: "avif", hint: "Next-gen, tiny"),
+        WheelItem(name: "BMP", id: "bmp", hint: "Uncompressed"),
+        WheelItem(name: "PDF", id: "pdf", hint: "Document pages"),
+        WheelItem(name: "DOCX", id: "docx", hint: "Editable Word")
     ]
-    public let formatCenter = WheelItem(name: "TIFF", id: "tiff")
+    public let formatCenter = WheelItem(name: "TIFF", id: "tiff", hint: "Print · archival")
 
     // --- Page 1: Tools & Edit (Image 2) ---
     public let toolPetals: [WheelItem] = [
-        WheelItem(name: "COMPRESS", id: "compress_image", icon: "arrow.down.forward.and.arrow.up.backward", isTool: true),
-        WheelItem(name: "METADATA", id: "metadata", icon: "tag.fill", isTool: true),
-        WheelItem(name: "EDIT", id: "edit", icon: "slider.horizontal.3", isTool: true),
-        WheelItem(name: "ANNOTATE", id: "annotate", icon: "pencil.tip.crop.circle", isTool: true),
-        WheelItem(name: "REMOVE BG", id: "remove_bg", icon: "sparkles", isTool: true),
-        WheelItem(name: "PREVIEW", id: "preview", icon: "eye.fill", isTool: true),
-        WheelItem(name: "CROP", id: "crop", icon: "crop", isTool: true),
-        WheelItem(name: "REDACT", id: "redact", icon: "eye.slash.fill", isTool: true)
+        WheelItem(name: "COMPRESS", id: "compress_image", icon: "arrow.down.forward.and.arrow.up.backward", hint: "Shrink file size", isTool: true),
+        WheelItem(name: "METADATA", id: "metadata", icon: "tag.fill", hint: "Strip GPS & EXIF", isTool: true),
+        WheelItem(name: "EDIT", id: "edit", icon: "slider.horizontal.3", hint: "Light · colour · rotate", isTool: true),
+        WheelItem(name: "ANNOTATE", id: "annotate", icon: "pencil.tip.crop.circle", hint: "Arrows · text · steps", isTool: true),
+        WheelItem(name: "REMOVE BG", id: "remove_bg", icon: "sparkles", hint: "Cut out subject", isTool: true),
+        WheelItem(name: "PREVIEW", id: "preview", icon: "eye.fill", hint: "Quick look", isTool: true),
+        WheelItem(name: "CROP", id: "crop", icon: "crop", hint: "Trim to ratio", isTool: true),
+        WheelItem(name: "REDACT", id: "redact", icon: "eye.slash.fill", hint: "Hide sensitive info", isTool: true)
     ]
-    public let toolCenter = WheelItem(name: "ADD BG", id: "add_bg", icon: "square.dashed", isTool: true)
+    public let toolCenter = WheelItem(name: "ADD BG", id: "add_bg", icon: "square.dashed", hint: "Solid or gradient", isTool: true)
 
     // --- Page 2: Video & Audio Media ---
     public let mediaPetals: [WheelItem] = [
-        WheelItem(name: "MP4", id: "to_mp4", icon: "video.fill", isTool: true),
-        WheelItem(name: "GIF", id: "video_to_gif", icon: "play.square.fill", isTool: true),
-        WheelItem(name: "MP3", id: "extract_audio", icon: "music.note", isTool: true),
-        WheelItem(name: "WAV", id: "to_wav", icon: "waveform", isTool: true),
-        WheelItem(name: "MOV", id: "to_mov", icon: "film.fill", isTool: true),
-        WheelItem(name: "WEBM", id: "to_webm", icon: "play.rectangle.fill", isTool: true),
-        WheelItem(name: "M4A", id: "to_m4a", icon: "headphones", isTool: true),
-        WheelItem(name: "COMPRESS", id: "compress_video", icon: "arrow.down.right.and.arrow.up.left", isTool: true)
+        WheelItem(name: "MP4", id: "to_mp4", icon: "video.fill", hint: "Universal video", isTool: true),
+        WheelItem(name: "GIF", id: "video_to_gif", icon: "play.square.fill", hint: "Clip to GIF", isTool: true),
+        WheelItem(name: "MP3", id: "extract_audio", icon: "music.note", hint: "Extract sound", isTool: true),
+        WheelItem(name: "WAV", id: "to_wav", icon: "waveform", hint: "Lossless audio", isTool: true),
+        WheelItem(name: "MOV", id: "to_mov", icon: "film.fill", hint: "QuickTime video", isTool: true),
+        WheelItem(name: "WEBM", id: "to_webm", icon: "play.rectangle.fill", hint: "HTML5 video", isTool: true),
+        WheelItem(name: "M4A", id: "to_m4a", icon: "headphones", hint: "Apple audio", isTool: true),
+        WheelItem(name: "COMPRESS", id: "compress_video", icon: "arrow.down.right.and.arrow.up.left", hint: "Reduce bitrate", isTool: true)
     ]
-    public let mediaCenter = WheelItem(name: "MUTE", id: "mute_video", icon: "speaker.slash.fill", isTool: true)
+    public let mediaCenter = WheelItem(name: "MUTE", id: "mute_video", icon: "speaker.slash.fill", hint: "Strip audio track", isTool: true)
 
     // --- Page 3: PDF & Documents ---
     public let docPetals: [WheelItem] = [
-        WheelItem(name: "TO PDF", id: "to_pdf", icon: "doc.text.fill", isTool: true),
-        WheelItem(name: "COMPRESS", id: "compress_pdf", icon: "arrow.down.circle.fill", isTool: true),
-        WheelItem(name: "SPLIT", id: "split_pdf", icon: "scissors", isTool: true),
-        WheelItem(name: "MERGE", id: "merge_pdf", icon: "doc.on.doc.fill", isTool: true),
-        WheelItem(name: "OCR TEXT", id: "ocr_pdf", icon: "text.viewfinder", isTool: true),
-        WheelItem(name: "TO IMAGES", id: "pdf_to_images", icon: "photo.stack.fill", isTool: true),
-        WheelItem(name: "TO WORD", id: "pdf_to_docx", icon: "doc.richtext.fill", isTool: true),
-        WheelItem(name: "PRINT", id: "print_doc", icon: "printer.fill", isTool: true)
+        WheelItem(name: "TO PDF", id: "to_pdf", icon: "doc.text.fill", hint: "Export to PDF", isTool: true),
+        WheelItem(name: "COMPRESS", id: "compress_pdf", icon: "arrow.down.circle.fill", hint: "Shrink PDF size", isTool: true),
+        WheelItem(name: "SPLIT", id: "split_pdf", icon: "scissors", hint: "Separate pages", isTool: true),
+        WheelItem(name: "MERGE", id: "merge_pdf", icon: "doc.on.doc.fill", hint: "Combine into one", isTool: true),
+        WheelItem(name: "OCR TEXT", id: "ocr_pdf", icon: "text.viewfinder", hint: "Recognize text", isTool: true),
+        WheelItem(name: "TO IMAGES", id: "pdf_to_images", icon: "photo.stack.fill", hint: "Page by page images", isTool: true),
+        WheelItem(name: "TO WORD", id: "pdf_to_docx", icon: "doc.richtext.fill", hint: "Convert to DOCX", isTool: true),
+        WheelItem(name: "PRINT", id: "print_doc", icon: "printer.fill", hint: "Send to printer", isTool: true)
     ]
-    public let docCenter = WheelItem(name: "PREVIEW", id: "preview", icon: "eye.fill", isTool: true)
+    public let docCenter = WheelItem(name: "PREVIEW", id: "preview", icon: "eye.fill", hint: "View document", isTool: true)
 
     // Active items for current category
     public var currentPetals: [WheelItem] {
@@ -425,17 +427,25 @@ public struct RadialWheelView: View {
                 }
             }
 
-            // 4. Center Pill
+            // 4. Center Pill with Dynamic Hint
             let isCenterHovered = state.hoveredIndex == 999
+            let isHoveredPetal = (state.hoveredIndex != nil && state.hoveredIndex! >= 0 && state.hoveredIndex! < 8)
             let centerItem = state.currentCenter
+            let activeItem: WheelItem = isHoveredPetal ? state.currentPetals[state.hoveredIndex!] : centerItem
+            let isCenterActive = isCenterHovered || isHoveredPetal
+
             Button(action: {
-                state.triggerAction(at: 999)
+                if isHoveredPetal {
+                    state.triggerAction(at: state.hoveredIndex!)
+                } else {
+                    state.triggerAction(at: 999)
+                }
                 RadialWindow.shared.hideWheel()
             }) {
                 ZStack {
                     Capsule()
                         .fill(
-                            isCenterHovered
+                            isCenterActive
                             ? AnyShapeStyle(
                                 LinearGradient(
                                     colors: [Color(red: 0.98, green: 0.42, blue: 0.12), Color(red: 0.88, green: 0.26, blue: 0.04)],
@@ -445,28 +455,33 @@ public struct RadialWheelView: View {
                             )
                             : AnyShapeStyle(Color(red: 1.0, green: 0.96, blue: 0.90).opacity(0.96))
                         )
-                        .frame(width: 98, height: 46)
+                        .frame(width: 104, height: 48)
                         .overlay(
                             Capsule()
-                                .stroke(isCenterHovered ? Color.white.opacity(0.85) : Color.white.opacity(0.65), lineWidth: 1.5)
+                                .stroke(isCenterActive ? Color.white.opacity(0.85) : Color.white.opacity(0.65), lineWidth: 1.5)
                         )
-                        .shadow(color: isCenterHovered ? Color.orange.opacity(0.65) : Color.black.opacity(0.12), radius: 10)
+                        .shadow(color: isCenterActive ? Color.orange.opacity(0.65) : Color.black.opacity(0.12), radius: 10)
 
-                    HStack(spacing: 4) {
-                        if let icon = centerItem.icon {
-                            Image(systemName: icon)
-                                .font(.system(size: 13, weight: .bold))
+                    VStack(spacing: 1.5) {
+                        HStack(spacing: 3) {
+                            if let icon = activeItem.icon {
+                                Image(systemName: icon)
+                                    .font(.system(size: 11, weight: .bold))
+                            }
+                            Text(activeItem.name)
+                                .font(.system(size: 12, weight: .heavy, design: .rounded))
+                                .tracking(0.5)
                         }
-                        Text(centerItem.name)
-                            .font(.system(size: 13.5, weight: .heavy, design: .rounded))
-                            .tracking(0.5)
+                        Text(isCenterActive ? (activeItem.hint ?? "") : "⇧ SCROLL")
+                            .font(.system(size: 7.5, weight: .bold, design: .rounded))
+                            .opacity(0.85)
                     }
-                    .foregroundColor(isCenterHovered ? .white : Color(red: 0.15, green: 0.15, blue: 0.15))
+                    .foregroundColor(isCenterActive ? .white : Color(red: 0.15, green: 0.15, blue: 0.15))
                 }
             }
             .buttonStyle(.plain)
-            .scaleEffect(isCenterHovered ? 1.08 : 1.0)
-            .animation(.spring(response: 0.2, dampingFraction: 0.7), value: isCenterHovered)
+            .scaleEffect(isCenterActive ? 1.06 : 1.0)
+            .animation(.spring(response: 0.2, dampingFraction: 0.7), value: isCenterActive)
             .onHover { hover in
                 if hover {
                     state.hoveredIndex = 999
