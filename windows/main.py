@@ -1,9 +1,24 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton
+import traceback
+from PyQt6.QtWidgets import (
+    QApplication, QSystemTrayIcon, QMenu, QMainWindow, QLabel,
+    QVBoxLayout, QWidget, QPushButton, QMessageBox
+)
 from PyQt6.QtGui import QIcon, QPixmap, QColor, QPainter, QAction
 from PyQt6.QtCore import Qt
-from radial_wheel import RadialWheelWindow
+from radial_wheel import RadialWheelWindow, THEMES
 from hook import GlobalDragHook
+
+def excepthook(exc_type, exc_value, exc_tb):
+    error_msg = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
+    print("FATAL ERROR:\n", error_msg, file=sys.stderr)
+    try:
+        QMessageBox.critical(None, "Dragged Error", error_msg)
+    except Exception:
+        pass
+    sys.__excepthook__(exc_type, exc_value, exc_tb)
+
+sys.excepthook = excepthook
 
 def create_tray_icon():
     # Render custom radial wheel tray icon
@@ -27,12 +42,18 @@ def main():
     hook = GlobalDragHook()
 
     def on_summon():
-        if not wheel_window.isVisible():
-            wheel_window.show_at_cursor()
+        try:
+            if not wheel_window.isVisible():
+                wheel_window.show_at_cursor()
+        except Exception as e:
+            print(f"Error on summon: {e}")
 
     def on_dismiss():
-        if wheel_window.isVisible():
-            wheel_window.hide()
+        try:
+            if wheel_window.isVisible():
+                wheel_window.hide()
+        except Exception as e:
+            print(f"Error on dismiss: {e}")
 
     hook.summon_wheel.connect(on_summon)
     hook.dismiss_wheel.connect(on_dismiss)
@@ -52,7 +73,6 @@ def main():
     menu.addAction(trigger_action)
 
     # 🎨 Theme Submenu for Windows
-    from radial_wheel import THEMES
     theme_menu = QMenu("Theme", menu)
     theme_actions = {}
 

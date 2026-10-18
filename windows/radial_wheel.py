@@ -4,7 +4,7 @@ from pathlib import Path
 from PyQt6.QtCore import Qt, QPoint, QRectF, QTimer, pyqtSignal
 from PyQt6.QtGui import (
     QPainter, QColor, QBrush, QPen, QPainterPath, QLinearGradient,
-    QFont, QIcon, QPixmap
+    QFont, QIcon, QPixmap, QCursor
 )
 from PyQt6.QtWidgets import QWidget, QApplication
 from converter import ConversionEngine
@@ -166,22 +166,24 @@ class RadialWheelWindow(QWidget):
             self.update()
 
     def show_at_cursor(self, files=None):
-        self.current_files = files or []
-        if self.current_files:
-            # Auto select category based on file
-            ext = Path(self.current_files[0]).suffix.lower().lstrip(".")
-            if ext in ["mp4", "mov", "avi", "mkv", "mp3", "wav"]:
-                self.category_idx = 2
-            elif ext in ["pdf", "docx", "txt"]:
-                self.category_idx = 3
-            else:
-                self.category_idx = 0
-        
-        pos = QApplication.primaryScreen().cursor().pos()
-        self.move(int(pos.x() - self.size_val / 2), int(pos.y() - self.size_val / 2))
-        self.show()
-        self.raise_()
-        self.activateWindow()
+        try:
+            self.current_files = files or []
+            if self.current_files:
+                # Auto select category based on file
+                ext = Path(self.current_files[0]).suffix.lower().lstrip(".")
+                if ext in ["mp4", "mov", "avi", "mkv", "mp3", "wav"]:
+                    self.category_idx = 2
+                elif ext in ["pdf", "docx", "txt"]:
+                    self.category_idx = 3
+                else:
+                    self.category_idx = 0
+            
+            pos = QCursor.pos()
+            self.move(int(pos.x() - self.size_val / 2), int(pos.y() - self.size_val / 2))
+            self.show()
+            self.raise_()
+        except Exception as e:
+            print(f"show_at_cursor error: {e}")
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Escape:
@@ -278,19 +280,35 @@ class RadialWheelWindow(QWidget):
                 print(f"Conversion error: {e}")
 
     def dragEnterEvent(self, event):
-        if event.mimeData().hasUrls():
+        try:
             event.acceptProposedAction()
-            self.current_files = [u.toLocalFile() for u in event.mimeData().urls()]
+            if event.mimeData().hasUrls():
+                self.current_files = [u.toLocalFile() for u in event.mimeData().urls() if u.isLocalFile()]
+        except Exception as e:
+            print(f"dragEnterEvent error: {e}")
 
     def dragMoveEvent(self, event):
-        self.update_hover(event.position().x(), event.position().y())
-        event.acceptProposedAction()
+        try:
+            event.acceptProposedAction()
+            p = event.position() if hasattr(event, "position") else event.pos()
+            self.update_hover(p.x(), p.y())
+        except Exception as e:
+            print(f"dragMoveEvent error: {e}")
 
     def dropEvent(self, event):
-        event.acceptProposedAction()
-        self.trigger_action()
+        try:
+            event.acceptProposedAction()
+            self.trigger_action()
+        except Exception as e:
+            print(f"dropEvent error: {e}")
 
     def paintEvent(self, event):
+        try:
+            self._do_paint(event)
+        except Exception as e:
+            print(f"paintEvent error: {e}")
+
+    def _do_paint(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
